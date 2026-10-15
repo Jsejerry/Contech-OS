@@ -267,6 +267,22 @@ function buildScene(w: number, h: number) {
   return { scene, camera, outer, spin, halo, pointMat, arcMat, updatePulses, earth: globe.material };
 }
 
+// expo-gl's native WebGL2 context passes `instanceof WebGLRenderingContext`, which makes
+// three.js (r163+) reject it as WebGL 1. Hide that global only while the renderer is created.
+function createRenderer(canvas: any, gl: ExpoWebGLRenderingContext) {
+  const g = globalThis as any;
+  const original = g.WebGLRenderingContext;
+  let hide = false;
+  if (Platform.OS !== "web" && original !== undefined) {
+    try { g.WebGLRenderingContext = undefined; hide = true; } catch { /* read-only global */ }
+  }
+  try {
+    return new THREE.WebGLRenderer({ canvas, context: gl as any, antialias: true, alpha: true });
+  } finally {
+    if (hide) g.WebGLRenderingContext = original;
+  }
+}
+
 type Props = { scrollY: SharedValue<number>; dragYaw: SharedValue<number>; screenH: number; contentBottom: SharedValue<number> };
 
 export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
@@ -321,7 +337,7 @@ export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
               clientHeight: h,
               getContext: () => gl,
             };
-      const renderer = new THREE.WebGLRenderer({ canvas, context: gl, antialias: true, alpha: true });
+      const renderer = createRenderer(canvas, gl);
       renderer.setPixelRatio(1);
       renderer.setSize(w, h, false);
       renderer.setClearColor(new THREE.Color(colors.surface), 1);
