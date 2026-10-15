@@ -1,0 +1,130 @@
+{
+  "app_name": "Contech OS",
+  "personality": "6 Glass / Luxe DARK fused with 7 Dark-First Utility",
+  "personality_one_liner": "A cinematic, deeply atmospheric dark-mode experience that feels like a glowing command center for the global construction ecosystem.",
+  "color": {
+    "surface": "#0B0F19",
+    "onSurface": "#FFFFFF",
+    "surfaceSecondary": "#151A29",
+    "onSurfaceSecondary": "#E2E4E9",
+    "surfaceTertiary": "#1E2538",
+    "onSurfaceTertiary": "#A0A5B5",
+    "surfaceInverse": "#FFFFFF",
+    "onSurfaceInverse": "#000000",
+    "brand": "#FF6200",
+    "brandPrimary": "#FF6200",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#F7931E",
+    "onBrandSecondary": "#0B0F19",
+    "brandTertiary": "#2A3582",
+    "onBrandTertiary": "#FFFFFF",
+    "success": "#34C759",
+    "onSuccess": "#FFFFFF",
+    "warning": "#FF9F0A",
+    "onWarning": "#000000",
+    "error": "#FF453A",
+    "onError": "#FFFFFF",
+    "info": "#0A84FF",
+    "onInfo": "#FFFFFF",
+    "border": "#1E2538",
+    "borderStrong": "#2A3582",
+    "divider": "#151A29",
+    "muted": "#8A8F9E",
+    "onBrand": "#FFFFFF"
+  },
+  "typography": {
+    "displayFontFamily": "SpaceGrotesk-Medium",
+    "textFontFamily": "Inter-Regular",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24,
+      "3xl": 32
+    }
+  },
+  "spacing": {
+    "rule": "Generous cinematic spacing for hero, tight and operational for the data cards.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": 0,
+  "navigation": "stack_only",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": true,
+    "do's": [
+      "Use heavy glassmorphism for scrolling sticky header/logo",
+      "Use glass backgrounds on the 6 audience cards to let the glowing earth backdrop bleed through",
+      "Apply glass to the bottom sheet modal for Waitlist"
+    ],
+    "dont's": [
+      "Do not blur standard buttons or form inputs",
+      "Do not use glass if it drops contrast below readable thresholds (add 75% dark tint behind glass)"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler",
+    "3d": "expo-gl, three"
+  },
+  "screens": [
+    {
+      "name": "Landing",
+      "purpose": "A scroll-driven interactive 3D landing page designed to capture waitlist signups.",
+      "states": {
+        "loading": "Centered minimalist spinner with Contech OS logo",
+        "empty": "N/A for landing page",
+        "error": "Failed to load WebGL - fall back to static glowing earth image"
+      },
+      "layout": "Root is a ScrollView. Background is absolute and fixed, displaying a 3D WebGL Earth globe using three.js (glowing orange in France area). As the user scrolls down, use Reanimated to animate the Globe shifting towards the bottom center, while the 'ConTech OS' logo animates to the sticky top-left corner. Section 1 (Hero): Eyebrow text, large 'Where the construction ecosystem connects' (ecosystem in orange), and two CTAs (Join Waitlist solid, Explore outlined). Section 2 (What it does): 3 mini columns (People, Technology, Opportunity) with orange dot indicators. Section 3 (How it connects): Glass-morphic grid of 6 audiences. Section 4 (How it works): Vertical timeline of Discover/Connect/Pilot/Intelligence. Bottom CTA sticky element over scroll content."
+    }
+  ],
+  "haptics": {
+    "events": {
+      "join_waitlist_tap": "impactLight",
+      "scroll_section_snap": "selection",
+      "waitlist_submit_success": "notificationSuccess"
+    }
+  },
+  "images": {
+    "3d_globe_fallback": {
+      "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwxfHxnbG93aW5nJTIwZWFydGglMjBzcGFjZSUyMGdsb2JlJTIwZGFya3xlbnwwfHx8fDE3OTA5NTA2NTh8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Glowing Earth from Space (Fallback)"
+    },
+    "abstract_architecture_card_bg": {
+      "url": "https://images.unsplash.com/photo-1573384293689-0327bf65bd86?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb25zdHJ1Y3Rpb24lMjB0ZWNobm9sb2d5JTIwZGFyayUyMGZ1dHVyaXN0aWN8ZW58MHx8fHwxNzkyMDUxMTM3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Futuristic Construction Abstract Background"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build a premium 6 Glass / Luxe DARK style app. Ensure Deep Navy/Black (#0B0F19) backgrounds with high contrast white text and electric orange (#FF6200) accents.",
+    "Implement the 3D Globe using `expo-gl` and `three.js`. The globe should be positioned fixed in the background. Use Reanimated `useAnimatedScrollHandler` to drive the scroll offset and move the globe downwards as the user scrolls, while keeping the top header fixed.",
+    "Waitlist Form: Must be implemented via `@gorhom/bottom-sheet` containing a Name and Email input. Use dark surface inputs with orange border focus rings. Add a mock SQLite/AsyncStorage 'save to DB' function to show a 'You're on the list' confirmation view upon submission.",
+    "Typography: Use `SpaceGrotesk` (via expo-font TTF) for display headings and `Inter` for body. Do NOT use @expo-google-fonts.",
+    "Do NOT use pure blue anywhere except the specified Deep Navy. Follow the <Colors> anti-pattern rules perfectly.",
+    "Include the orange circle logo for 'Contech OS' alongside the text.",
+    "Section 'What it does' must use the '3 mini columns' described in the brief (PEOPLE, TECHNOLOGY, OPPORTUNITY) styled with small orange dot icons.",
+    "Ensure 'ecosystem' in the hero title uses the brand orange color."
+  ]
+}
