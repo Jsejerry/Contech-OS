@@ -1,17 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Text, useWindowDimensions, View } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import { useWindowDimensions, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
-  Extrapolation,
-  interpolate,
   useAnimatedRef,
   useAnimatedScrollHandler,
-  useAnimatedStyle,
   useSharedValue,
   withDecay,
   withDelay,
-  withRepeat,
   withSequence,
   withTiming,
 } from "react-native-reanimated";
@@ -21,40 +17,23 @@ import { ConnectSection } from "@/src/components/connect-section";
 import { FinalSection } from "@/src/components/final-section";
 import { Globe } from "@/src/components/globe";
 import { Header } from "@/src/components/header";
+import { HeroSection } from "@/src/components/hero-section";
 import { MenuOverlay, type MenuTarget } from "@/src/components/menu-overlay";
 import { ScrollCtx } from "@/src/components/reveal";
 import { WaitlistSheet } from "@/src/components/waitlist-sheet";
 import { WhatSection } from "@/src/components/what-section";
 import { WorksSection } from "@/src/components/works-section";
 import { tapLight } from "@/src/haptics";
-import { fonts, makeStyles } from "@/src/theme";
-
-function ScrollHint({ scrollY, H }: { scrollY: any; H: number }) {
-  const styles = useStyles();
-  const bob = useSharedValue(0);
-  useEffect(() => {
-    bob.value = withRepeat(withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.quad) }), -1, true);
-  }, [bob]);
-  const wrap = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [0, H * 0.2], [1, 0], Extrapolation.CLAMP),
-  }));
-  const dot = useAnimatedStyle(() => ({ transform: [{ translateY: bob.value * 12 }] }));
-  return (
-    <Animated.View style={[styles.hint, wrap]} testID="scroll-hint">
-      <View style={styles.mouse}>
-        <Animated.View style={[styles.mouseDot, dot]} />
-      </View>
-      <Text style={styles.hintText}>SCROLL TO EXPLORE</Text>
-    </Animated.View>
-  );
-}
+import { makeStyles } from "@/src/theme";
 
 export default function Landing() {
   const insets = useSafeAreaInsets();
-  const { height: H } = useWindowDimensions();
+  const { height: H, width: W } = useWindowDimensions();
+  const heroHeight = Math.max(H, Math.min(W, 500) * 2.08 + insets.top);
   const styles = useStyles();
   const scrollY = useSharedValue(0);
   const dragYaw = useSharedValue(0);
+  const contentBottom = useSharedValue(H * 0.52);
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const ys = useRef<Record<MenuTarget, number>>({ what: 0, connect: 0, works: 0, join: 0 });
   const [waitlist, setWaitlist] = useState(false);
@@ -99,7 +78,7 @@ export default function Landing() {
 
   return (
     <View style={styles.root} testID="landing-screen">
-      <Globe scrollY={scrollY} dragYaw={dragYaw} screenH={H} />
+      <Globe key={`${W}-${H}`} scrollY={scrollY} dragYaw={dragYaw} screenH={H} contentBottom={contentBottom} />
       <ScrollCtx.Provider value={scrollInfo}>
         <GestureDetector gesture={pan}>
           <Animated.ScrollView
@@ -110,19 +89,15 @@ export default function Landing() {
             contentContainerStyle={{ paddingBottom: insets.bottom + H * 0.24 }}
             testID="landing-scroll"
           >
-            <View style={{ height: H }}>
-              <View style={[styles.hintWrap, { bottom: insets.bottom + 24 }]}>
-                <ScrollHint scrollY={scrollY} H={H} />
-              </View>
-            </View>
-            <WhatSection onJoin={openWaitlist} onExplore={() => goTo("connect")} onY={(y) => (ys.current.what = y)} />
+            <HeroSection height={heroHeight} contentBottom={contentBottom} onJoin={openWaitlist} onExplore={() => goTo("what")} />
+            <WhatSection onY={(y) => (ys.current.what = y)} />
             <ConnectSection onY={(y) => (ys.current.connect = y)} />
             <WorksSection onY={(y) => (ys.current.works = y)} />
             <FinalSection onJoin={openWaitlist} onY={(y) => (ys.current.join = y)} />
           </Animated.ScrollView>
         </GestureDetector>
       </ScrollCtx.Provider>
-      <Header scrollY={scrollY} onMenu={() => setMenu(true)} onJoin={openWaitlist} />
+      <Header scrollY={scrollY} onMenu={() => setMenu(true)} />
       <MenuOverlay visible={menu} onClose={() => setMenu(false)} onSelect={goTo} />
       <WaitlistSheet visible={waitlist} onClose={() => setWaitlist(false)} />
     </View>
@@ -130,18 +105,5 @@ export default function Landing() {
 }
 
 const useStyles = makeStyles((c) => ({
-  root: { flex: 1, backgroundColor: c.surface },
-  hintWrap: { position: "absolute", left: 0, right: 0, alignItems: "center" },
-  hint: { alignItems: "center", gap: 12 },
-  mouse: {
-    width: 24,
-    height: 40,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: c.onSurfaceTertiary,
-    alignItems: "center",
-    paddingTop: 8,
-  },
-  mouseDot: { width: 4, height: 8, borderRadius: 2, backgroundColor: c.brandPrimary },
-  hintText: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 3, color: c.onSurfaceTertiary },
+  root: { flex: 1, backgroundColor: c.surface, overflow: "hidden" },
 }));

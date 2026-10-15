@@ -1,130 +1,72 @@
 {
-  "app_name": "Contech OS",
-  "personality": "6 Glass / Luxe DARK fused with 7 Dark-First Utility",
-  "personality_one_liner": "A cinematic, deeply atmospheric dark-mode experience that feels like a glowing command center for the global construction ecosystem.",
-  "color": {
-    "surface": "#0B0F19",
-    "onSurface": "#FFFFFF",
-    "surfaceSecondary": "#151A29",
-    "onSurfaceSecondary": "#E2E4E9",
-    "surfaceTertiary": "#1E2538",
-    "onSurfaceTertiary": "#A0A5B5",
-    "surfaceInverse": "#FFFFFF",
-    "onSurfaceInverse": "#000000",
-    "brand": "#FF6200",
-    "brandPrimary": "#FF6200",
-    "onBrandPrimary": "#FFFFFF",
-    "brandSecondary": "#F7931E",
-    "onBrandSecondary": "#0B0F19",
-    "brandTertiary": "#2A3582",
-    "onBrandTertiary": "#FFFFFF",
-    "success": "#34C759",
-    "onSuccess": "#FFFFFF",
-    "warning": "#FF9F0A",
-    "onWarning": "#000000",
-    "error": "#FF453A",
-    "onError": "#FFFFFF",
-    "info": "#0A84FF",
-    "onInfo": "#FFFFFF",
-    "border": "#1E2538",
-    "borderStrong": "#2A3582",
-    "divider": "#151A29",
-    "muted": "#8A8F9E",
-    "onBrand": "#FFFFFF"
-  },
   "typography": {
-    "displayFontFamily": "SpaceGrotesk-Medium",
-    "textFontFamily": "Inter-Regular",
-    "scale": {
-      "sm": 12,
-      "base": 14,
-      "lg": 16,
-      "xl": 20,
-      "2xl": 24,
-      "3xl": 32
+    "headings": "Outfit (Bold/Black), tight tracking (tracking-tight), leading-none. Used for 'Where the construction ecosystem connects.', 'WHAT IT DOES', 'WHO IT CONNECTS', 'HOW IT WORKS'.",
+    "body": "Inter (Regular/Medium), readable tracking, leading-relaxed (1.5). Used for descriptions and cards.",
+    "hierarchy": {
+      "H1": "text-[32px] md:text-[40px] leading-[1.1] tracking-[-0.02em]",
+      "H2": "text-[24px] md:text-[32px] leading-[1.2]",
+      "H3": "text-[18px] md:text-[24px]",
+      "body": "text-[15px] md:text-[16px] text-[#A0A0AB]",
+      "labels": "text-[12px] uppercase tracking-[0.1em]"
     }
   },
-  "spacing": {
-    "rule": "Generous cinematic spacing for hero, tight and operational for the data cards.",
-    "xs": 4,
-    "sm": 8,
-    "md": 12,
-    "lg": 16,
-    "xl": 24,
-    "2xl": 32,
-    "3xl": 48
+  "colors": {
+    "background": "#050510 (Deep Cinematic Blue/Black)",
+    "brand_primary": "#FF5A00 (Vibrant Orange for 'ecosystem' and CTAs)",
+    "brand_secondary": "#FFA07A (Light Orange for connections/glow)",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#A0A0AB",
+    "surface": "rgba(255, 255, 255, 0.05)",
+    "surface_border": "rgba(255, 255, 255, 0.1)"
   },
-  "radius_tokens": {
-    "sm": 6,
-    "md": 12,
-    "lg": 20,
-    "pill": 999
+  "visual enhancers": {
+    "glassmorphism": "Used for header background and floating cards (BlurView with intensity 30-50, tint='dark', 1px top/left border of rgba(255,255,255,0.1)).",
+    "glow": "Heavy emphasis on the orange glow originating from France on the globe, with light bleed effect on the background.",
+    "borders": "1px solid rgba(255, 255, 255, 0.1) for 'Explore Platform' CTA, Pillars, and Feature Cards to maintain a technical 'OS' feel."
   },
-  "shadow_tier": 0,
-  "navigation": "stack_only",
-  "icon_set": "Phosphor",
-  "glassmorphism": {
-    "enabled": true,
-    "do's": [
-      "Use heavy glassmorphism for scrolling sticky header/logo",
-      "Use glass backgrounds on the 6 audience cards to let the glowing earth backdrop bleed through",
-      "Apply glass to the bottom sheet modal for Waitlist"
-    ],
-    "dont's": [
-      "Do not blur standard buttons or form inputs",
-      "Do not use glass if it drops contrast below readable thresholds (add 75% dark tint behind glass)"
-    ]
+  "component_path": "/app/frontend/app/index.js, /app/frontend/src/components/header.js, /app/frontend/src/components/globe.js",
+  "instructions_to_main_agent": {
+    "header": "Modify header.js. Remove the large centered zooming logo animation. Fix the 'ConTech OS' logo (symbol + wordmark) to the top-left permanently. Fix the hamburger menu icon to the top-right. Keep background blurry/translucent on scroll.",
+    "hero_section": "In index.js, add a new absolute or overlaid View above the Globe but below the Header. Container must have left/right padding of 24px, starting around top: 100px. Content must be left-aligned.",
+    "hero_heading": "Text: 'Where the construction ecosystem connects.' 'ecosystem' must be styled with color: brand_primary (Orange).",
+    "hero_description": "Text: 'Discover the people, technologies and opportunities moving the built world forward — all in one connected ecosystem.' Color: text_secondary, size: 15px, marginTop: 16px.",
+    "hero_ctas": "Two pill-shaped side-by-side buttons, marginTop: 24px. 1) 'Join the Waitlist' (Orange bg, white text). 2) 'Explore Platform' (Transparent bg, white text, 1px white/10 border). Use flex-row, gap-12.",
+    "hero_pillars": "Three narrow capsules positioned below CTAs (marginTop: 32px): 'People', 'Technology', 'Opportunity'. Styled as bordered pills with 12px text, flex-row or column depending on space, ensuring it matches a 'three narrow pillars' vertical or horizontal stack visually.",
+    "globe": "In globe.js, adjust the WebGL camera or the `s.outer.position.y` so the globe sits entirely in the lower half of the screen on mobile (390x844). Ensure rotation focuses on Europe/Africa with France glowing prominently orange. Disable or tone down any extreme intro zooming that disrupts the static top-left text.",
+    "scroll_hint": "Ensure 'SCROLL TO EXPLORE' hint is positioned at the very bottom center of the hero viewport (bottom: 24px).",
+    "what_it_does": "Update what-section.js. Add 'Bridging the Post-Event Void: Lost Momentum, Friction in Pilot Execution'. Use cards for 'Dynamic Need/Offer Cards', 'Algorithmic Matchmaking', 'Integrated Pilot Workspace'. Use glassmorphic cards with 1px borders.",
+    "who_it_connects": "Update connect-section.js. Create a circular or grid layout of 6 audiences arranged around a central ConTech OS logo instead of generic list cards. Ensure spacing is generous and lines connect them.",
+    "how_it_works": "Update works-section.js. Add 'Dual Dynamic Cards', 'Pilot Playbooks & KPI Dashboards', 'Live Event Mode'. Flow: 'Discover -> Connect -> Pilot -> Intelligence'.",
+    "waitlist_integration": "Ensure 'Join the Waitlist' CTA in the hero calls the existing openWaitlist() method to trigger the waitlist-sheet.js."
   },
-  "platform_libraries": {
-    "glass": {
-      "ios": "expo-glass-effect",
-      "android": "expo-blur",
-      "low_end_android_fallback": "solid surfaceSecondary"
-    },
-    "image": "expo-image",
-    "blur": "expo-blur",
-    "bottom_sheet": "@gorhom/bottom-sheet",
-    "animation": "react-native-reanimated",
-    "gesture": "react-native-gesture-handler",
-    "3d": "expo-gl, three"
+  "grids": {
+    "mobile_bento": "Use flex-col for mobile with gap-16. For feature cards, use min-height of 160px with flex-1, rounded-2xl, and p-6."
   },
-  "screens": [
-    {
-      "name": "Landing",
-      "purpose": "A scroll-driven interactive 3D landing page designed to capture waitlist signups.",
-      "states": {
-        "loading": "Centered minimalist spinner with Contech OS logo",
-        "empty": "N/A for landing page",
-        "error": "Failed to load WebGL - fall back to static glowing earth image"
-      },
-      "layout": "Root is a ScrollView. Background is absolute and fixed, displaying a 3D WebGL Earth globe using three.js (glowing orange in France area). As the user scrolls down, use Reanimated to animate the Globe shifting towards the bottom center, while the 'ConTech OS' logo animates to the sticky top-left corner. Section 1 (Hero): Eyebrow text, large 'Where the construction ecosystem connects' (ecosystem in orange), and two CTAs (Join Waitlist solid, Explore outlined). Section 2 (What it does): 3 mini columns (People, Technology, Opportunity) with orange dot indicators. Section 3 (How it connects): Glass-morphic grid of 6 audiences. Section 4 (How it works): Vertical timeline of Discover/Connect/Pilot/Intelligence. Bottom CTA sticky element over scroll content."
-    }
-  ],
-  "haptics": {
-    "events": {
-      "join_waitlist_tap": "impactLight",
-      "scroll_section_snap": "selection",
-      "waitlist_submit_success": "notificationSuccess"
+  "layouts": {
+    "mobile_first": "Design strictly for 390x844. Hero text must break cleanly. 'Where the construction\\necosystem\\nconnects.'",
+    "alignment": "Strict left-alignment for all hero typography to contrast with the right/bottom-heavy 3D globe."
+  },
+  "motion": {
+    "globe_entrance": "Keep the globe rotation smooth, but eliminate vertical Y-axis jumping if it obscures text.",
+    "micro_interactions": "CTAs must scale down slightly (0.97) on press. Use Reanimated for smooth opacity fades on scroll."
+  },
+  "accessibility": {
+    "contrast": "Ensure the gray body text (#A0A0AB) over the deep blue/black background meets 4.5:1 ratio.",
+    "touch_targets": "All CTAs and Header buttons must have hitSlop={{top:10, bottom:10, left:10, right:10}} or minimum 44x44 size.",
+    "test_ids": "Ensure data-testid/testID props are present: 'header-logo', 'hamburger-menu', 'hero-join-waitlist', 'hero-explore-platform', 'globe-canvas'."
+  },
+  "media": {
+    "icons": "Use existing Feather icons (react-native-vector-icons/feather). Add 'arrow-right' to the Explore CTA if needed."
+  },
+  "3d_libraries": {
+    "expo_gl": "Continue using expo-gl and three.js. Main task for Globe is positional adjustment (translation Y) and rotation offset to ensure France is front and center."
+  },
+  "image_urls": {
+    "background_texture": {
+      "url": "",
+      "description": "No external images needed for the hero, relies entirely on WebGL 3D Globe and code-based UI.",
+      "category": "none"
     }
   },
-  "images": {
-    "3d_globe_fallback": {
-      "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwxfHxnbG93aW5nJTIwZWFydGglMjBzcGFjZSUyMGdsb2JlJTIwZGFya3xlbnwwfHx8fDE3OTA5NTA2NTh8MA&ixlib=rb-4.1.0&q=85",
-      "alt": "Glowing Earth from Space (Fallback)"
-    },
-    "abstract_architecture_card_bg": {
-      "url": "https://images.unsplash.com/photo-1573384293689-0327bf65bd86?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb25zdHJ1Y3Rpb24lMjB0ZWNobm9sb2d5JTIwZGFyayUyMGZ1dHVyaXN0aWN8ZW58MHx8fHwxNzkyMDUxMTM3fDA&ixlib=rb-4.1.0&q=85",
-      "alt": "Futuristic Construction Abstract Background"
-    }
-  },
-  "instructions_to_main_agent": [
-    "Build a premium 6 Glass / Luxe DARK style app. Ensure Deep Navy/Black (#0B0F19) backgrounds with high contrast white text and electric orange (#FF6200) accents.",
-    "Implement the 3D Globe using `expo-gl` and `three.js`. The globe should be positioned fixed in the background. Use Reanimated `useAnimatedScrollHandler` to drive the scroll offset and move the globe downwards as the user scrolls, while keeping the top header fixed.",
-    "Waitlist Form: Must be implemented via `@gorhom/bottom-sheet` containing a Name and Email input. Use dark surface inputs with orange border focus rings. Add a mock SQLite/AsyncStorage 'save to DB' function to show a 'You're on the list' confirmation view upon submission.",
-    "Typography: Use `SpaceGrotesk` (via expo-font TTF) for display headings and `Inter` for body. Do NOT use @expo-google-fonts.",
-    "Do NOT use pure blue anywhere except the specified Deep Navy. Follow the <Colors> anti-pattern rules perfectly.",
-    "Include the orange circle logo for 'Contech OS' alongside the text.",
-    "Section 'What it does' must use the '3 mini columns' described in the brief (PEOPLE, TECHNOLOGY, OPPORTUNITY) styled with small orange dot icons.",
-    "Ensure 'ecosystem' in the hero title uses the brand orange color."
-  ]
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": "Focus on high-fidelity React Native (Expo) implementation. NO HTML/Tailwind classes, use StyleSheet or inline styles matching the provided theme (makeStyles). Respect the existing architecture (Reanimated, Gesture Handler). Implement EXACT copy provided. Do not invent filler text. Avoid generic centered layouts; use left-aligned typography to balance the 3D globe. CRITICAL: Use `.js` extension conceptually as requested by the prompt rule, although actual modifications will occur in the `.tsx` files if they exist. Ensure `testID` props are applied to all new interactive components for automated testing. Do NOT use pure transparent backgrounds for cards/headers; always use a dark tint + BlurView."
 }

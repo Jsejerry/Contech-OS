@@ -1,4 +1,6 @@
-const BASE = `${process.env.EXPO_PUBLIC_BACKEND_URL}/api`;
+import Constants from "expo-constants";
+
+export const BASE = `${Constants.expoConfig?.extra?.backendUrl ?? process.env.EXPO_PUBLIC_BACKEND_URL}/api`;
 
 export type WaitlistResult = {
   id: string;

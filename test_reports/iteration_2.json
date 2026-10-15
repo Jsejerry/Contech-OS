@@ -1,0 +1,49 @@
+{
+  "summary": "Backend and mobile-first frontend regression completed on preview URL. Core hero/globe/waitlist/navigation flows passed at 390x844 and fresh 320x740. One backend regression found: brand asset cache policy is returned as no-store on public endpoint.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "/api/brand/logo (also /api/brand/earth?v=2)",
+        "issue": "Public response returns Cache-Control: no-store, no-cache, must-revalidate instead of expected cacheable policy (e.g., public, max-age=86400).",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_waitlist.py",
+    "/app/backend/tests/test_brand_assets.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/artifacts_iter2/hero_390.jpg",
+    "/app/test_reports/artifacts_iter2b/hero_320_fresh.jpg"
+  ],
+  "action_items": [
+    "Fix cache header behavior for /api/brand/logo and /api/brand/earth on public preview route; verify edge/ingress is not overriding backend Cache-Control.",
+    "Re-run backend brand asset pytest after cache header fix."
+  ],
+  "critical_code_review_comments": [
+    "brand_assets.py sets cacheable headers in FastAPI response, but public endpoint currently serves no-store; likely rewritten upstream (proxy/CDN).",
+    "Frontend correctly requests brand assets only through /api/brand/* (storage credentials/paths are not exposed in frontend API layer).",
+    "All tested interactive elements include stable testID selectors and were tappable in mobile viewport testing."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_brand_assets.py",
+    "/app/test_reports/iteration_2.json",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "success_rate": {
+    "backend": "92%",
+    "frontend": "97%"
+  },
+  "seed_data_creation": "Created TEST_/test_ui_* waitlist entries via pytest and UI runs, including one duplicate-email verification entry.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All requested UI flows passed on preview URL at both target mobile sizes; only outstanding regression is cache-control policy returned by public brand asset endpoints.",
+  "rca_of_issue": "Repro: GET https://france-globe-os.preview.emergentagent.com/api/brand/logo returns 200 image/png but Cache-Control=no-store, no-cache, must-revalidate. Backend code intends public cache header, so root cause is likely header override at ingress/CDN layer rather than API handler logic."
+}

@@ -49,7 +49,7 @@ export function ConnectSection({ onY }: { onY: (y: number) => void }) {
   return (
     <Section style={styles.wrap} testID="section-connect" onY={onY}>
       <Reveal>
-        <Eyebrow>HOW IT CONNECTS</Eyebrow>
+        <Eyebrow>WHO IT CONNECTS</Eyebrow>
         <Headline size={34}>
           Built for the people moving construction <Accent>forward.</Accent>
         </Headline>
@@ -114,7 +114,7 @@ export function ConnectSection({ onY }: { onY: (y: number) => void }) {
           Construction innovation has <Accent>no borders.</Accent>
         </Headline>
         <Body style={styles.lead}>
-          ConTech OS connects ecosystems across markets, disciplines and regions — making local expertise discoverable within a
+          ConTech OS is designed to connect ecosystems across markets, disciplines and regions — making local expertise discoverable within a
           global network.
         </Body>
       </Reveal>

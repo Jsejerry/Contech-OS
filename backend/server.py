@@ -1,6 +1,8 @@
 from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.concurrency import run_in_threadpool
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import DuplicateKeyError
 import os
@@ -15,6 +17,8 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, EmailStr, Field
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+from brand_assets import router as brand_router, init_storage
 
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
@@ -97,6 +101,8 @@ async def waitlist_count():
 
 
 app.include_router(api_router)
+app.include_router(brand_router)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
@@ -113,6 +119,10 @@ logger = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup():
     await db.waitlist.create_index("email", unique=True)
+    try:
+        await run_in_threadpool(init_storage)
+    except Exception:
+        logger.exception("Brand storage initialization deferred until next asset request")
 
 
 @app.on_event("shutdown")

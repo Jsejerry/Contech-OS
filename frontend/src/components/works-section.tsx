@@ -20,7 +20,7 @@ import { colors as C, fonts, makeStyles, useTheme } from "@/src/theme";
 const STEPS = [
   { t: "Discover", icon: "search", d: "Find relevant solutions, companies, experts and opportunities." },
   { t: "Connect", icon: "link", d: "Identify and engage with the right people and organizations." },
-  { t: "Pilot", icon: "flag", d: "Turn promising connections into real-world projects with playbooks and KPIs." },
+  { t: "Pilot", icon: "flag", d: "Turn promising connections into real-world projects." },
   { t: "Intelligence", icon: "bar-chart-2", d: "Understand emerging technologies, market movements and ecosystem activity." },
 ];
 
@@ -137,8 +137,8 @@ function FlipCard() {
 }
 
 const FEATURES = [
-  { icon: "layout", t: "Pilot playbooks & KPI dashboards", d: "Templates for success metrics, master agreements and weekly milestones." },
-  { icon: "radio", t: "Live event mode", d: "Instantly turns event networking into active platform projects." },
+  { icon: "layout", t: "Pilot Playbooks & KPI Dashboards", d: "Pre-configured templates for success metrics, master agreements, and weekly milestone tracking." },
+  { icon: "radio", t: "Live Event Mode", d: "Embedded event technology that instantly turns event networking into active platform projects." },
 ];
 
 export function WorksSection({ onY }: { onY: (y: number) => void }) {
@@ -155,8 +155,9 @@ export function WorksSection({ onY }: { onY: (y: number) => void }) {
       </Reveal>
       <Timeline />
       <Reveal style={styles.block}>
-        <Text style={styles.kicker}>DUAL DYNAMIC CARDS</Text>
-        <Text style={styles.sub}>One entity, two sides — switch between active Needs and available Offers in real time.</Text>
+        <Text style={styles.kicker} testID="product-preview-heading">CORE FEATURES & PRODUCT PREVIEW</Text>
+        <Text style={styles.previewLabel} testID="dual-card-preview-label">DUAL DYNAMIC CARDS · ILLUSTRATIVE PREVIEW</Text>
+        <Text style={styles.sub}>One entity, two sides: seamlessly switch between active Needs and available Offers in real time.</Text>
       </Reveal>
       <Reveal delay={1}>
         <FlipCard />
@@ -198,6 +199,7 @@ const useStyles = makeStyles((c) => ({
   stepD: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: c.onSurfaceTertiary, marginTop: 4 },
   block: { marginTop: 40, marginBottom: 16 },
   kicker: { fontFamily: fonts.bodySemi, fontSize: 12, letterSpacing: 2.4, color: c.brandPrimary },
+  previewLabel: { fontFamily: fonts.bodyMedium, fontSize: 9, letterSpacing: 1.1, color: c.onSurfaceTertiary, marginTop: 18 },
   sub: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: c.onSurfaceTertiary, marginTop: 8 },
   seg: {
     flexDirection: "row",
@@ -209,7 +211,7 @@ const useStyles = makeStyles((c) => ({
     borderColor: c.border,
     marginBottom: 16,
   },
-  segBtn: { height: 36, paddingHorizontal: 20, borderRadius: 999, justifyContent: "center" },
+  segBtn: { height: 44, paddingHorizontal: 20, borderRadius: 999, justifyContent: "center" },
   segOn: { backgroundColor: c.brandPrimary },
   segText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: c.onSurfaceTertiary },
   segTextOn: { color: c.onBrandPrimary },

@@ -101,3 +101,82 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Make ConTech OS look like the supplied mobile reference image and use the article copy in the PDF; preserve true WebGL globe and database-backed waitlist."
+backend:
+  - task: "Waitlist persistence and duplicate handling regression"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Waitlist regression passed in iteration2, including persistence, validation and duplicates."
+  - task: "Managed brand asset proxy"
+    implemented: true
+    working: true
+    file: "backend/brand_assets.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Assets pass PNG, decoded RGBA size, 404 checks. Public cache header failure investigated: intentional preview ingress overwrite, not app defect. Origin cache policy verified separately; revised tests retain public functionality checks."
+frontend:
+  - task: "Reference-matched hero and true 3D globe"
+    implemented: true
+    working: true
+    file: "frontend/src/components/hero-section.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Iteration2 passed hero/globe at390x844 and fresh320x740, no clipping or overflow, texture loaded; drag/scroll and lower fade verified."
+  - task: "PDF article navigation and interactions"
+    implemented: true
+    working: true
+    file: "frontend/app/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Iteration2 passed Explore, scroll hint, all menu links, six audience nodes, four modules, Need/Offer flip, final CTA."
+  - task: "Waitlist form open close submit regression"
+    implemented: true
+    working: true
+    file: "frontend/src/components/waitlist-sheet.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Iteration2 passed fresh close, reopen, validation, role selection, successful persistence/queue number, duplicate confirmation, Done and final CTA."
+metadata:
+  created_by: "main_agent"
+  version: "2.0"
+  test_sequence: 2
+  run_ui: true
+test_plan:
+  current_focus:
+    - "Reference-matched hero and true 3D globe"
+    - "PDF article navigation and interactions"
+    - "Waitlist form open close submit regression"
+    - "Waitlist persistence and duplicate handling regression"
+    - "Managed brand asset proxy"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+agent_communication:
+  - agent: "main"
+    message: "Final self-rerun: 15/15 backend checks passed after separating origin cache contract from preview ingress policy. Direct origin curl confirms cache-control public,max-age86400. No application regression from cache header report. See test_reports/pytest/final_regression.xml. All iteration2 UI checks passed; no physical device tested."
+  - agent: "main"
+    message: "Visual redesign complete. Preview https://france-globe-os.preview.emergentagent.com. No auth; memory/test_credentials.md records this. No mocked APIs. Self-tests: hero, texture, menu, explore, audience selection, fresh waitlist close. Please test 390x844 plus small phone; check lower fade while scrolling. Preserve code unless tests need updates; report all failures."

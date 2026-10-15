@@ -10,7 +10,7 @@ export type MenuTarget = "what" | "connect" | "works" | "join";
 
 const LINKS: { key: MenuTarget; label: string; n: string }[] = [
   { key: "what", label: "What it does", n: "01" },
-  { key: "connect", label: "How it connects", n: "02" },
+  { key: "connect", label: "Who it connects", n: "02" },
   { key: "works", label: "How it works", n: "03" },
   { key: "join", label: "Join the waitlist", n: "04" },
 ];
@@ -23,7 +23,7 @@ export function MenuOverlay({ visible, onClose, onSelect }: { visible: boolean; 
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View style={[styles.root, { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 24 }]} testID="menu-overlay">
         <View style={styles.top}>
-          <Wordmark size={30} />
+          <Wordmark size={30} testID="menu-wordmark" />
           <Pressable testID="menu-close-button" onPress={onClose} style={styles.close} hitSlop={6}>
             <Feather name="x" size={24} color={colors.onSurface} />
           </Pressable>

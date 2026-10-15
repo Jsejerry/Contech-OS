@@ -40,12 +40,16 @@ export function PressScale({
   onPress,
   style,
   testID,
-}: PropsWithChildren<{ onPress?: () => void; style?: any; testID?: string }>) {
+  disabled,
+}: PropsWithChildren<{ onPress?: () => void; style?: any; testID?: string; disabled?: boolean }>) {
   const s = useSharedValue(1);
   const a = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
   return (
     <Pressable
       testID={testID}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
+      disabled={disabled}
       onPress={onPress}
       onPressIn={() => (s.value = withSpring(0.95, { damping: 15 }))}
       onPressOut={() => (s.value = withSpring(1, { damping: 12 }))}
@@ -62,6 +66,7 @@ export function PrimaryButton({
   icon = "arrow-right",
   big,
   right,
+  disabled,
 }: {
   label: string;
   onPress: () => void;
@@ -69,11 +74,12 @@ export function PrimaryButton({
   icon?: any;
   big?: boolean;
   right?: ReactNode;
+  disabled?: boolean;
 }) {
   const styles = useStyles();
   const { colors } = useTheme();
   return (
-    <PressScale testID={testID} onPress={onPress} style={[styles.primary, big && styles.primaryBig]}>
+    <PressScale testID={testID} onPress={onPress} disabled={disabled} style={[styles.primary, big && styles.primaryBig]}>
       <Text style={[styles.primaryText, big && { fontSize: 17 }]}>{label}</Text>
       {right ?? <Feather name={icon} size={big ? 20 : 18} color={colors.onBrandPrimary} />}
     </PressScale>

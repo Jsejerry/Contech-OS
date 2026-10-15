@@ -48,6 +48,7 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
   };
 
   const submit = () => {
+    if (m.isPending) return;
     setError(null);
     if (!name.trim()) return setError("Please enter your name.");
     if (!EMAIL_RE.test(email.trim())) return setError("Please enter a valid email.");
@@ -153,6 +154,7 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
                     testID="waitlist-submit-button"
                     label={m.isPending ? "Joining…" : "Reserve my spot"}
                     onPress={submit}
+                    disabled={m.isPending}
                     right={m.isPending ? <ActivityIndicator color={colors.onBrandPrimary} /> : undefined}
                   />
                 </View>
@@ -183,9 +185,10 @@ const useStyles = makeStyles((c) => ({
     position: "absolute",
     right: 16,
     top: 16,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    zIndex: 2,
     backgroundColor: c.surfaceTertiary,
     alignItems: "center",
     justifyContent: "center",
@@ -210,7 +213,7 @@ const useStyles = makeStyles((c) => ({
   chipRow: { height: 56, marginHorizontal: -24 },
   chips: { gap: 8, paddingHorizontal: 24, alignItems: "center" },
   chip: {
-    height: 36,
+    height: 44,
     flexShrink: 0,
     borderRadius: 999,
     paddingHorizontal: 14,
