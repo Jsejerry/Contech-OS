@@ -1,12 +1,13 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { AccessibilityInfo, Platform, StyleSheet, Text, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import * as THREE from "three";
 
 import { FRANCE_OUTLINE, LAND_DOTS } from "@/src/globe-data";
 import { earthMaterial, loadEarthTexture } from "@/src/globe-material";
+import { followGlobeScroll, globeScrollPose } from "@/src/globe-motion";
 import { colors, fonts } from "@/src/theme";
 import WORLD_OUTLINES from "@/src/world-outlines.json";
 
@@ -23,8 +24,6 @@ const CITIES = [
 ];
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 function toVec(lat: number, lon: number, r: number) {
   const la = lat * DEG;
@@ -86,13 +85,13 @@ function buildScene(w: number, h: number) {
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      uniforms: { uColor: { value: C(colors.atmosphere) }, uTime: { value: 0 } },
+      uniforms: { uColor: { value: C(colors.atmosphere) }, uTime: { value: 0 }, uScrollEnergy: { value: 0 } },
       vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-      fragmentShader: `uniform vec3 uColor; uniform float uTime; varying vec2 vUv;
+      fragmentShader: `uniform vec3 uColor; uniform float uTime; uniform float uScrollEnergy; varying vec2 vUv;
         void main(){ float d = length(vUv - 0.5) * 2.0;
           float ring = exp(-pow((d - 0.56) * 14.0, 2.0)) * (0.10 + 0.01 * sin(uTime * 1.5));
           float wide = smoothstep(1.0, 0.2, d) * 0.018;
-          gl_FragColor = vec4(uColor * (ring + wide), 1.0); }`,
+          gl_FragColor = vec4(uColor * (ring + wide) * (1.0 + uScrollEnergy * 0.3), 1.0); }`,
     }),
   );
   halo.position.z = -0.6;
@@ -265,7 +264,7 @@ function buildScene(w: number, h: number) {
     pulseGeo.attributes.position.needsUpdate = true;
   };
 
-  return { scene, camera, outer, spin, halo, pointMat, updatePulses, earth: globe.material };
+  return { scene, camera, outer, spin, halo, pointMat, arcMat, updatePulses, earth: globe.material };
 }
 
 type Props = { scrollY: SharedValue<number>; dragYaw: SharedValue<number>; screenH: number; contentBottom: SharedValue<number> };
@@ -275,6 +274,20 @@ export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
   const [textured, setTextured] = useState(false);
   const raf = useRef<number | null>(null);
   const cleanup = useRef<(() => void) | null>(null);
+  const reducedMotion = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    let preferenceChanged = false;
+    AccessibilityInfo.isReduceMotionEnabled().then((value) => {
+      if (active && !preferenceChanged) reducedMotion.current = value;
+    }).catch(() => {});
+    const listener = AccessibilityInfo.addEventListener("reduceMotionChanged", (value) => {
+      preferenceChanged = true;
+      reducedMotion.current = value;
+    });
+    return () => { active = false; listener.remove(); };
+  }, []);
 
   useEffect(
     () => () => {
@@ -325,25 +338,39 @@ export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
       const halfH = 4 * Math.tan(22.5 * DEG);
       const halfW = halfH * (w / h);
       const heroScale = halfW * 1.3;
-      const endScale = heroScale * 0.86;
-      const endY = -halfH - endScale * 0.78;
       const t0 = Date.now();
+      let previousTime = t0;
+      let smoothScroll = Math.max(0, scrollY.value);
+      let scrollEnergy = 0;
 
       const render = () => {
+        if (disposed) return;
         raf.current = requestAnimationFrame(render);
-        const t = (Date.now() - t0) / 1000;
-        const sy = scrollY.value;
-        const e = ease(clamp01(sy / (screenH * 0.75)));
-        const scale = lerp(heroScale, endScale, e);
+        const now = Date.now();
+        const dt = Math.min(0.05, Math.max(0.001, (now - previousTime) / 1000));
+        previousTime = now;
+        const reduced = reducedMotion.current;
+        const t = reduced ? 0 : (now - t0) / 1000;
+        const previousScroll = smoothScroll;
+        smoothScroll = reduced ? Math.max(0, scrollY.value) : followGlobeScroll(smoothScroll, scrollY.value, dt);
+        const speed = Math.min(1, Math.abs(smoothScroll - previousScroll) / (dt * screenH * 2.5));
+        scrollEnergy = reduced ? 0 : lerp(scrollEnergy, speed, 1 - Math.exp(-8 * dt));
+        const pose = globeScrollPose(smoothScroll / screenH, reduced);
+        const scale = heroScale * pose.zoom;
         const topY = halfH - ((contentBottom.value + 55) / screenH) * 2 * halfH;
-        s.outer.position.y = lerp(topY - heroScale * 0.95, endY, e);
+        const endY = -halfH - scale * 0.64;
+        s.outer.position.set(halfW * pose.side, lerp(topY - heroScale * 0.95, endY, pose.travel) + heroScale * pose.bob, 0);
         s.outer.scale.setScalar(scale);
-        s.spin.rotation.x = -6 * DEG + e * 0.2 + Math.sin(t * 0.12) * 0.012;
-        s.spin.rotation.y =
-          -8 * DEG + Math.sin(t * 0.1) * 0.045 + dragYaw.value;
+        s.spin.rotation.set(
+          -6 * DEG + pose.pitch + Math.sin(t * 0.12) * 0.012,
+          -8 * DEG + pose.yaw + Math.sin(t * 0.1) * 0.045 + dragYaw.value,
+          pose.roll,
+        );
         s.pointMat.uniforms.uTime.value = t;
         s.pointMat.uniforms.uGroupScale.value = scale;
         s.halo.material.uniforms.uTime.value = t;
+        s.halo.material.uniforms.uScrollEnergy.value = scrollEnergy;
+        s.arcMat.opacity = 0.36 + scrollEnergy * 0.12;
         s.updatePulses(t);
 
         renderer.render(s.scene, s.camera);

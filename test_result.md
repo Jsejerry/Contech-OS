@@ -127,6 +127,20 @@ backend:
         agent: "main"
         comment: "Assets pass PNG, decoded RGBA size, 404 checks. Public cache header failure investigated: intentional preview ingress overwrite, not app defect. Origin cache policy verified separately; revised tests retain public functionality checks."
 frontend:
+  - task: "Globe-only enhanced reversible scroll animation"
+    implemented: true
+    working: true
+    file: "frontend/src/components/globe.tsx; frontend/src/globe-motion.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Iteration3 passed both mobile sizes, real scroll checkpoints/reverse, horizontal drag, reduced motion and existing navigation/waitlist controls. Pure helper tests passed; optional nonfinite-state guard added by main and regression-covered. No app regressions."
+      - working: "NA"
+        agent: "main"
+        comment: "Only globe runtime files changed. Added pure scroll pose, damping, zoom/rotation/tilt, downward glide and lower-edge parallax with reduced motion. TS and lints pass, hero renders unchanged. First automation used scrollTo on outer landing-scroll testID and no scroll occurred; likely wrapper rather than actual inner scroll element. Please use mouse wheel or identify actual scrollable descendant, verify reversible animation and unchanged UI."
   - task: "Reference-matched hero and true 3D globe"
     implemented: true
     working: true
@@ -163,10 +177,11 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 2
+  test_sequence: 3
   run_ui: true
 test_plan:
   current_focus:
+    - "Globe-only enhanced reversible scroll animation"
     - "Reference-matched hero and true 3D globe"
     - "PDF article navigation and interactions"
     - "Waitlist form open close submit regression"
@@ -176,6 +191,8 @@ test_plan:
   test_all: true
   test_priority: "high_first"
 agent_communication:
+  - agent: "main"
+    message: "Latest task strictly globe-only animation enhancement. No user-facing layout or copy changes. Frontend-only focused regression requested: wheel/touch scrolling, hero return, reduced-motion, navigation and waitlist open/close. Please add pure motion helper tests if appropriate; inspect actual scroll element (outer testID scrollTo did not move)."
   - agent: "main"
     message: "Final self-rerun: 15/15 backend checks passed after separating origin cache contract from preview ingress policy. Direct origin curl confirms cache-control public,max-age86400. No application regression from cache header report. See test_reports/pytest/final_regression.xml. All iteration2 UI checks passed; no physical device tested."
   - agent: "main"

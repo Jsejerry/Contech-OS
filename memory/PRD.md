@@ -35,6 +35,12 @@ Mobile landing page for ConTech OS (construction company + global networking app
 ## Implemented (Jun 2026)
 - All of the above; backend 9/9 tests pass, frontend flows verified
 
+## Globe-only scroll animation enhancement
+- User: "i want you to add more scroll animation to this just add animation to globe scroll animation rest everything same"; confirmed smooth rotation, gentle zoom and downward glide reversing on scroll back.
+- Only runtime changes: `src/components/globe.tsx` and new pure `src/globe-motion.ts`; no layout, article, header, button, waitlist, API, texture or theme changes.
+- Absolute scroll-driven zoom/rotation/tilt/parallax, continued subtle motion along the lower screen edge, frame-rate-independent scroll damping, transient atmosphere/network brightening. Original globe pose at zero scroll retained. Reduced-motion preference disables extra rotations/zoom/brightening; horizontal drag retained.
+- Lint and TypeScript passed; hero screenshot unchanged. Testing iteration3 passed real wheel/tap/drag at390x844 and320x740, scroll checkpoints and return-to-top, reduced-motion, Explore/menu, waitlist open/close. Pure helper runtime tests passed; nonfinite current/delta guard added and covered. Only pre-existing Chromium ReadPixels performance warning; physical-device frame performance not measured. For future tests, use real wheel/touch or scrollable descendant rather than scrollTo on the outer landing-scroll testID.
+
 ## Backlog
 - P0: None in implemented preview flows. Real-device Expo rendering/performance acceptance remains unverified.
 - P1: Share/referral link and optional challenge/objective micro-survey from the PDF; native-device acceptance of globe and scroll behavior
