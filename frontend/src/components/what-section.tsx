@@ -1,59 +1,77 @@
 import Feather from "@react-native-vector-icons/feather";
-import { Text, View } from "react-native";
-
-import { Reveal, Section } from "@/src/components/reveal";
-import { Accent, Body, Eyebrow, Headline } from "@/src/components/ui";
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ChapterHeading } from "@/src/components/chapter-heading";
+import { Section } from "@/src/components/reveal";
+import { useCopy } from "@/src/content";
+import { tapSelect } from "@/src/haptics";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 
-const PROBLEMS = [
-  { icon: "wifi-off", t: "Lost Momentum", d: "Connections made at trade shows and summits fade into buried email chains." },
-  { icon: "clock", t: "Friction in Pilot Execution", d: "Unclear KPIs, slow contract approvals, and informal reviews delay technology adoption." },
-];
-const SOLUTIONS = [
-  { n: "01", t: "Dynamic Need/Offer Cards", d: "Publish active jobsite problems or list available tech assets in real time." },
-  { n: "02", t: "Algorithmic Matchmaking", d: "Automatic pairing based on technical taxonomy, TRL level, and deployment readiness." },
-  { n: "03", t: "Integrated Pilot Workspace", d: "Manage legal agreements, jobsite logs, and ROI tracking in a single dashboard." },
-];
-
-export function WhatSection({ onY }: { onY: (y: number) => void }) {
+export function WhatSection({ onY, onExplore, height }: { onY: (y: number) => void; onExplore: () => void; height: number }) {
   const styles = useStyles();
   const { colors } = useTheme();
-  return (
-    <Section style={styles.wrap} testID="section-what" onY={onY}>
-      <Reveal>
-        <Eyebrow>WHAT IT DOES</Eyebrow>
-        <Headline size={34}>Bridging the <Accent>Post-Event Void.</Accent></Headline>
-        <Body style={styles.lead}>The right connection is often harder to find than the right solution.</Body>
-      </Reveal>
-      <Reveal style={styles.subheading}><Text testID="industry-problem-heading" style={styles.kicker}>THE INDUSTRY PROBLEM</Text></Reveal>
-      {PROBLEMS.map((problem, i) => (
-        <Reveal key={problem.t} delay={i} style={styles.problem}>
-          <View style={styles.icon}><Feather name={problem.icon as any} size={19} color={colors.onSurfaceTertiary} /></View>
-          <View style={styles.flex}><Text testID={`problem-title-${i}`} style={styles.title}>{problem.t}</Text><Text testID={`problem-description-${i}`} style={styles.description}>{problem.d}</Text></View>
-        </Reveal>
-      ))}
-      <Reveal style={styles.subheading}><Text testID="contech-solution-heading" style={[styles.kicker, styles.orange]}>THE CONTECH OS SOLUTION</Text></Reveal>
-      {SOLUTIONS.map((solution, i) => (
-        <Reveal key={solution.n} delay={i} style={styles.solution}>
-          <Text style={styles.number}>{solution.n}</Text>
-          <View style={styles.flex}><Text testID={`solution-title-${i}`} style={styles.title}>{solution.t}</Text><Text testID={`solution-description-${i}`} style={styles.description}>{solution.d}</Text></View>
-        </Reveal>
-      ))}
-    </Section>
-  );
+  const t = useCopy();
+  const insets = useSafeAreaInsets();
+  const [problem, setProblem] = useState(0);
+  const [solution, setSolution] = useState<number | null>(null);
+  return <Section testID="section-what" onY={onY} style={[styles.wrap, { minHeight: height, paddingTop: insets.top + 108 }]}>
+    <ChapterHeading index={0} title={t.whatTitle} accent={t.whatAccent} lead={t.whatLead} />
+    <View style={styles.problemBlock}>
+      <Text testID="industry-problem-heading" style={styles.kicker}>{t.industry}</Text>
+      <View style={styles.problemTabs}>
+        {t.problems.map((p, i) => <Pressable key={i} testID={`problem-tab-${i}`} accessibilityRole="tab" accessibilityState={{ selected: problem === i }} onPress={() => { tapSelect(); setProblem(i); }} style={[styles.problemTab, problem === i && styles.problemOn]}>
+          <Feather name={i === 0 ? "link-2" : "clock"} size={15} color={problem === i ? colors.blue : colors.muted} />
+          <Text testID={`problem-title-${i}`} style={[styles.problemLabel, problem === i && styles.problemLabelOn]}>{p.short}</Text>
+        </Pressable>)}
+      </View>
+      <Text testID="problem-description" style={styles.problemBody}>{t.problems[problem].body}</Text>
+    </View>
+    <View style={styles.solutions}>
+      <View style={styles.solutionHeading}><View style={styles.signal} /><Text testID="contech-solution-heading" style={styles.kicker}>{t.solution}</Text></View>
+      {t.solutions.map((s, i) => <View key={i} style={styles.solutionRow}>
+        <Pressable testID={`solution-toggle-${i}`} accessibilityRole="button" accessibilityState={{ expanded: solution === i }} onPress={() => { tapSelect(); setSolution(solution === i ? null : i); }} style={styles.solutionButton}>
+          <Text style={styles.number}>0{i + 1}</Text>
+          <Text testID={`solution-title-${i}`} style={styles.solutionTitle}>{s.title}</Text>
+          <Feather name={solution === i ? "minus" : "plus"} size={16} color={colors.blue} />
+        </Pressable>
+        {solution === i && <Text testID={`solution-description-${i}`} style={styles.solutionBody}>{s.body}</Text>}
+      </View>)}
+    </View>
+    <Pressable testID="hero-explore-button" accessibilityRole="button" onPress={onExplore} style={({ pressed }) => [styles.explore, pressed && styles.pressed]}>
+      <Text style={styles.exploreText}>{t.explore}</Text><Feather name="arrow-down" size={17} color={colors.blue} />
+    </Pressable>
+    <View style={[styles.coordinates, { pointerEvents: "none" }]}>
+      <Feather name="crosshair" size={13} color={colors.muted} />
+      <Text testID="france-coordinates" style={styles.coordinateText}>48°51′ N  /  02°21′ E</Text>
+      <View style={styles.coordinateLine} />
+      <Text style={styles.coordinateText}>FR → WORLD</Text>
+    </View>
+  </Section>;
 }
 
 const useStyles = makeStyles((c) => ({
-  wrap: { paddingHorizontal: 26, paddingTop: 62 },
-  flex: { flex: 1 },
-  lead: { marginTop: 16 },
-  subheading: { marginTop: 36, marginBottom: 18 },
-  kicker: { fontFamily: fonts.bodyMedium, fontSize: 10, letterSpacing: 2.1, color: c.onSurfaceTertiary },
-  orange: { color: c.brandPrimary },
-  problem: { flexDirection: "row", gap: 16, paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: c.border },
-  icon: { paddingTop: 2, width: 24 },
-  title: { fontFamily: fonts.displayMedium, fontSize: 19, color: c.onSurface, marginBottom: 7 },
-  description: { fontFamily: fonts.body, fontSize: 14, lineHeight: 22, color: c.onSurfaceTertiary },
-  solution: { flexDirection: "row", gap: 18, padding: 20, borderRadius: 16, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassBorder, marginBottom: 12 },
-  number: { width: 26, fontFamily: fonts.displayLight, fontSize: 25, color: c.brandPrimary },
+  wrap: { paddingHorizontal: 24, paddingBottom: 74 },
+  kicker: { fontFamily: fonts.bodyMedium, fontSize: 9, letterSpacing: 1.7, color: c.onSurfaceTertiary },
+  problemBlock: { marginTop: 26 },
+  problemTabs: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: c.border, marginTop: 11 },
+  problemTab: { flex: 1, minHeight: 49, paddingVertical: 12, flexDirection: "row", alignItems: "center", gap: 8, borderBottomWidth: 2, borderBottomColor: c.transparent },
+  problemOn: { borderBottomColor: c.blue },
+  problemLabel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: c.muted, flexShrink: 1 },
+  problemLabelOn: { color: c.onSurface },
+  problemBody: { fontFamily: fonts.body, fontSize: 13, lineHeight: 21, color: c.onSurfaceTertiary, marginTop: 14, minHeight: 42 },
+  solutions: { marginTop: 24, paddingHorizontal: 16, paddingTop: 17, backgroundColor: c.glass, borderWidth: 1, borderColor: c.border, borderRadius: 5 },
+  solutionHeading: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
+  signal: { width: 4, height: 4, backgroundColor: c.brandPrimary },
+  solutionRow: { borderTopWidth: 1, borderTopColor: c.divider },
+  solutionButton: { minHeight: 48, paddingVertical: 12, flexDirection: "row", alignItems: "center", gap: 10 },
+  number: { fontFamily: fonts.body, fontSize: 10, color: c.blue },
+  solutionTitle: { fontFamily: fonts.displayMedium, fontSize: 16, lineHeight: 20, color: c.onSurface, flex: 1 },
+  solutionBody: { fontFamily: fonts.body, fontSize: 12, lineHeight: 20, color: c.onSurfaceTertiary, paddingLeft: 24, paddingRight: 10, paddingBottom: 17 },
+  explore: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 18 },
+  exploreText: { fontFamily: fonts.bodyMedium, fontSize: 12, color: c.blue },
+  coordinates: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 34 },
+  coordinateText: { fontFamily: fonts.body, fontSize: 8, letterSpacing: 0.8, color: c.muted },
+  coordinateLine: { flex: 1, height: 1, backgroundColor: c.border },
+  pressed: { opacity: 0.55 },
 }));

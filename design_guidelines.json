@@ -1,72 +1,112 @@
 {
-  "typography": {
-    "headings": "Outfit (Bold/Black), tight tracking (tracking-tight), leading-none. Used for 'Where the construction ecosystem connects.', 'WHAT IT DOES', 'WHO IT CONNECTS', 'HOW IT WORKS'.",
-    "body": "Inter (Regular/Medium), readable tracking, leading-relaxed (1.5). Used for descriptions and cards.",
-    "hierarchy": {
-      "H1": "text-[32px] md:text-[40px] leading-[1.1] tracking-[-0.02em]",
-      "H2": "text-[24px] md:text-[32px] leading-[1.2]",
-      "H3": "text-[18px] md:text-[24px]",
-      "body": "text-[15px] md:text-[16px] text-[#A0A0AB]",
-      "labels": "text-[12px] uppercase tracking-[0.1em]"
+  "project_type": "Expo React Native Mobile Web Landing Experience",
+  "theme": {
+    "default_mode": "dark",
+    "theme_switch_location": "Hamburger Menu overlay (Light / Dark toggle)",
+    "color_palette": {
+      "primary_background_dark": "#0B0F17",
+      "primary_background_light": "#F8FAFC",
+      "surface_dark": "#131C2E",
+      "surface_light": "#FFFFFF",
+      "card_border_dark": "rgba(255, 255, 255, 0.08)",
+      "card_border_light": "rgba(15, 23, 42, 0.08)",
+      "text_primary_dark": "#F1F5F9",
+      "text_primary_light": "#0F172A",
+      "text_secondary_dark": "#94A3B8",
+      "text_secondary_light": "#64748B",
+      "accent_orange": "#FF6B00",
+      "accent_orange_hover": "#E05E00",
+      "accent_orange_light": "#FF8533",
+      "accent_blue_glow": "#1E3A8A",
+      "globe_orange_lines": "#FF6B00",
+      "hud_cyan_grid": "#00F0FF"
     }
   },
-  "colors": {
-    "background": "#050510 (Deep Cinematic Blue/Black)",
-    "brand_primary": "#FF5A00 (Vibrant Orange for 'ecosystem' and CTAs)",
-    "brand_secondary": "#FFA07A (Light Orange for connections/glow)",
-    "text_primary": "#FFFFFF",
-    "text_secondary": "#A0A0AB",
-    "surface": "rgba(255, 255, 255, 0.05)",
-    "surface_border": "rgba(255, 255, 255, 0.1)"
+  "typography": {
+    "font_family_display": "Outfit",
+    "font_family_body": "Inter",
+    "font_sizes": {
+      "h1_hero": 36,
+      "h2_section": 28,
+      "h3_card_title": 20,
+      "body_large": 16,
+      "body_regular": 14,
+      "caption": 12
+    },
+    "letter_spacing": {
+      "tight": -0.5,
+      "uppercase_label": 1.5
+    }
   },
-  "visual enhancers": {
-    "glassmorphism": "Used for header background and floating cards (BlurView with intensity 30-50, tint='dark', 1px top/left border of rgba(255,255,255,0.1)).",
-    "glow": "Heavy emphasis on the orange glow originating from France on the globe, with light bleed effect on the background.",
-    "borders": "1px solid rgba(255, 255, 255, 0.1) for 'Explore Platform' CTA, Pillars, and Feature Cards to maintain a technical 'OS' feel."
+  "layout_architecture": {
+    "header": {
+      "hamburger_menu_position": "Top-Left",
+      "logo_position": "Top-Right",
+      "logo_style": "Single-line compact ConTech OS logo",
+      "about_us_nav_link": "Top header inline link / modal trigger"
+    },
+    "hamburger_menu": {
+      "items": [
+        "Navigation Links (What it does, Who it connects, How it works, About Us)",
+        "Language Selection (English, Spanish, French)",
+        "Theme Toggle (Dark / Light mode)",
+        "Social Links at the bottom (Instagram Icon, Gmail Icon)"
+      ]
+    },
+    "persistent_elements": {
+      "join_waitlist_floating_button": "Static bottom/side CTA overlay present across screens + contextual in-page CTA"
+    },
+    "scroll_chapters": [
+      {
+        "page_number": 1,
+        "title": "WHAT IT DOES",
+        "subtitle": "Bridging the Post-Event Void",
+        "content_structure": "Interactive Problem & Solution cards (Lost Momentum, Pilot Execution vs Dynamic Need/Offer Cards, Algorithmic Matchmaking, Integrated Pilot Workspace)"
+      },
+      {
+        "page_number": 2,
+        "title": "WHO IT CONNECTS",
+        "subtitle": "Built for the people moving construction forward",
+        "layout": "Central ConTech OS symbol surrounded by 6 architectural modules (Construction Companies, Tech Providers, Startups, Investors, Experts, Universities & Institutions)"
+      },
+      {
+        "page_number": 3,
+        "title": "HOW IT WORKS",
+        "subtitle": "Core Features & Product Preview",
+        "components": [
+          "Dual Dynamic Cards (Need / Offer real-time switch)",
+          "Pilot Playbooks & KPI Dashboards",
+          "Live Event Mode Networking"
+        ]
+      }
+    ]
   },
-  "component_path": "/app/frontend/app/index.js, /app/frontend/src/components/header.js, /app/frontend/src/components/globe.js",
-  "instructions_to_main_agent": {
-    "header": "Modify header.js. Remove the large centered zooming logo animation. Fix the 'ConTech OS' logo (symbol + wordmark) to the top-left permanently. Fix the hamburger menu icon to the top-right. Keep background blurry/translucent on scroll.",
-    "hero_section": "In index.js, add a new absolute or overlaid View above the Globe but below the Header. Container must have left/right padding of 24px, starting around top: 100px. Content must be left-aligned.",
-    "hero_heading": "Text: 'Where the construction ecosystem connects.' 'ecosystem' must be styled with color: brand_primary (Orange).",
-    "hero_description": "Text: 'Discover the people, technologies and opportunities moving the built world forward — all in one connected ecosystem.' Color: text_secondary, size: 15px, marginTop: 16px.",
-    "hero_ctas": "Two pill-shaped side-by-side buttons, marginTop: 24px. 1) 'Join the Waitlist' (Orange bg, white text). 2) 'Explore Platform' (Transparent bg, white text, 1px white/10 border). Use flex-row, gap-12.",
-    "hero_pillars": "Three narrow capsules positioned below CTAs (marginTop: 32px): 'People', 'Technology', 'Opportunity'. Styled as bordered pills with 12px text, flex-row or column depending on space, ensuring it matches a 'three narrow pillars' vertical or horizontal stack visually.",
-    "globe": "In globe.js, adjust the WebGL camera or the `s.outer.position.y` so the globe sits entirely in the lower half of the screen on mobile (390x844). Ensure rotation focuses on Europe/Africa with France glowing prominently orange. Disable or tone down any extreme intro zooming that disrupts the static top-left text.",
-    "scroll_hint": "Ensure 'SCROLL TO EXPLORE' hint is positioned at the very bottom center of the hero viewport (bottom: 24px).",
-    "what_it_does": "Update what-section.js. Add 'Bridging the Post-Event Void: Lost Momentum, Friction in Pilot Execution'. Use cards for 'Dynamic Need/Offer Cards', 'Algorithmic Matchmaking', 'Integrated Pilot Workspace'. Use glassmorphic cards with 1px borders.",
-    "who_it_connects": "Update connect-section.js. Create a circular or grid layout of 6 audiences arranged around a central ConTech OS logo instead of generic list cards. Ensure spacing is generous and lines connect them.",
-    "how_it_works": "Update works-section.js. Add 'Dual Dynamic Cards', 'Pilot Playbooks & KPI Dashboards', 'Live Event Mode'. Flow: 'Discover -> Connect -> Pilot -> Intelligence'.",
-    "waitlist_integration": "Ensure 'Join the Waitlist' CTA in the hero calls the existing openWaitlist() method to trigger the waitlist-sheet.js."
+  "3d_globe_specifications": {
+    "placement": "Half-globe positioned at bottom of screen, behind text and cards",
+    "motion": "Rotates smoothly synchronized with user scroll velocity and progress",
+    "route_animation": "Animated orange arcs emerging from France connecting major construction hubs worldwide (US, UAE, Japan, Brazil, UK)",
+    "color": "Orange glowing arcs (#FF6B00) over deep obsidian wireframe globe",
+    "interactive_reactivity": "Responds subtly to touch scroll triggers while keeping focus on text readability"
   },
-  "grids": {
-    "mobile_bento": "Use flex-col for mobile with gap-16. For feature cards, use min-height of 160px with flex-1, rounded-2xl, and p-6."
+  "construction_aesthetic_elements": {
+    "vibes": "Industrial precision, Blueprint lines, Tactical dark mode with orange signal accents, structural steel grid overlays",
+    "card_style": "Subtle 1px architectural border with blueprint grid background pattern and subtle hover scale"
   },
-  "layouts": {
-    "mobile_first": "Design strictly for 390x844. Hero text must break cleanly. 'Where the construction\\necosystem\\nconnects.'",
-    "alignment": "Strict left-alignment for all hero typography to contrast with the right/bottom-heavy 3D globe."
-  },
-  "motion": {
-    "globe_entrance": "Keep the globe rotation smooth, but eliminate vertical Y-axis jumping if it obscures text.",
-    "micro_interactions": "CTAs must scale down slightly (0.97) on press. Use Reanimated for smooth opacity fades on scroll."
-  },
-  "accessibility": {
-    "contrast": "Ensure the gray body text (#A0A0AB) over the deep blue/black background meets 4.5:1 ratio.",
-    "touch_targets": "All CTAs and Header buttons must have hitSlop={{top:10, bottom:10, left:10, right:10}} or minimum 44x44 size.",
-    "test_ids": "Ensure data-testid/testID props are present: 'header-logo', 'hamburger-menu', 'hero-join-waitlist', 'hero-explore-platform', 'globe-canvas'."
-  },
-  "media": {
-    "icons": "Use existing Feather icons (react-native-vector-icons/feather). Add 'arrow-right' to the Explore CTA if needed."
-  },
-  "3d_libraries": {
-    "expo_gl": "Continue using expo-gl and three.js. Main task for Globe is positional adjustment (translation Y) and rotation offset to ensure France is front and center."
+  "accessibility_and_testing": {
+    "test_id_convention": "All interactive elements, buttons, language triggers, theme toggles, and input fields MUST contain explicit data-testid attributes (e.g. data-testid=\"hamburger-menu-btn\", data-testid=\"waitlist-submit-btn\", data-testid=\"lang-select-fr\")",
+    "touch_targets": "Minimum 44px for native touch interactivity"
   },
   "image_urls": {
-    "background_texture": {
-      "url": "",
-      "description": "No external images needed for the hero, relies entirely on WebGL 3D Globe and code-based UI.",
-      "category": "none"
-    }
+    "construction_tech_bg": "https://images.pexels.com/photos/18290521/pexels-photo-18290521.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "modern_architecture": "https://images.unsplash.com/photo-1762715461103-cf7f03090c93?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "cranes_dark": "https://images.unsplash.com/photo-1788511331108-ba44162b4956?crop=entropy&cs=srgb&fm=jpg&q=85"
   },
-  "UNIVERSAL GUIDELINES FOR MAIN AGENT": "Focus on high-fidelity React Native (Expo) implementation. NO HTML/Tailwind classes, use StyleSheet or inline styles matching the provided theme (makeStyles). Respect the existing architecture (Reanimated, Gesture Handler). Implement EXACT copy provided. Do not invent filler text. Avoid generic centered layouts; use left-aligned typography to balance the 3D globe. CRITICAL: Use `.js` extension conceptually as requested by the prompt rule, although actual modifications will occur in the `.tsx` files if they exist. Ensure `testID` props are applied to all new interactive components for automated testing. Do NOT use pure transparent backgrounds for cards/headers; always use a dark tint + BlurView."
+  "instructions_to_main_agent": [
+    "Follow Expo React Native conventions carefully with JS files (.js).",
+    "Ensure the central logo is single-line and positioned at top-right, with hamburger menu at top-left.",
+    "Ensure language selection for English, Spanish, French is integrated inside the menu and top sections.",
+    "Ensure Theme Toggle (Dark/Light) is present in the Hamburger menu and correctly swaps root colors.",
+    "Ensure the persistent Join Waitlist CTA is visible and functional with backend API.",
+    "Keep typography and data primary, rendering the globe at the background bottom with orange scroll-driven routes."
+  ]
 }

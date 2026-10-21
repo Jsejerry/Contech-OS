@@ -8,19 +8,16 @@ import * as THREE from "three";
 import { FRANCE_OUTLINE, LAND_DOTS } from "@/src/globe-data";
 import { earthMaterial, loadEarthTexture } from "@/src/globe-material";
 import { followGlobeScroll, globeScrollPose } from "@/src/globe-motion";
-import { colors, fonts } from "@/src/theme";
+import { colors, fonts, makeStyles, useTheme } from "@/src/theme";
+import { useCopy } from "@/src/content";
 import WORLD_OUTLINES from "@/src/world-outlines.json";
 
 const DEG = Math.PI / 180;
 const FR = { lat: 46.6, lon: 2.4 };
 const PARIS = { lat: 48.86, lon: 2.35 };
 const CITIES = [
-  [40.71, -74.0], [45.5, -73.57], [-23.55, -46.63], [25.2, 55.27], [1.35, 103.82], [35.68, 139.69],
-  [6.52, 3.38], [19.08, 72.88], [-26.2, 28.05], [51.51, -0.13], [52.52, 13.4], [41.9, 12.5],
-  [40.42, -3.7], [59.33, 18.07], [30.04, 31.24], [33.57, -7.59], [55.75, 37.62],
-  [64.15, -21.94], [60.17, 24.94], [50.1, 14.43], [41.01, 28.97], [24.71, 46.67],
-  [-1.29, 36.82], [14.71, -17.47], [-33.92, 18.42], [-15.79, -47.88], [-34.6, -58.38],
-  [9.03, 38.75], [35.69, 51.39], [31.23, 121.47], [39.9, 116.4], [37.77, -122.4]
+  [40.71, -74.0], [-23.55, -46.63], [25.2, 55.27], [1.35, 103.82],
+  [35.68, 139.69], [-26.2, 28.05], [51.51, -0.13], [52.52, 13.4],
 ];
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -62,7 +59,7 @@ void main() {
   float d = length(gl_PointCoord - vec2(0.5));
   if (d > 0.5) discard;
   float a = pow(smoothstep(0.5, 0.0, d), 1.4);
-  gl_FragColor = vec4(vColor * a * vAlpha, 1.0);
+  gl_FragColor = vec4(vColor, a * vAlpha);
 }`;
 
 function buildScene(w: number, h: number) {
@@ -91,7 +88,7 @@ function buildScene(w: number, h: number) {
         void main(){ float d = length(vUv - 0.5) * 2.0;
           float ring = exp(-pow((d - 0.56) * 14.0, 2.0)) * (0.10 + 0.01 * sin(uTime * 1.5));
           float wide = smoothstep(1.0, 0.2, d) * 0.018;
-          gl_FragColor = vec4(uColor * (ring + wide) * (1.0 + uScrollEnergy * 0.3), 1.0); }`,
+          gl_FragColor = vec4(uColor, (ring + wide) * (1.0 + uScrollEnergy * 0.3)); }`,
     }),
   );
   halo.position.z = -0.6;
@@ -116,7 +113,7 @@ function buildScene(w: number, h: number) {
       vertexShader: `varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
       fragmentShader: `uniform vec3 uColor; varying vec3 vN;
         void main(){ float a = pow(1.0-max(vN.z,0.0),4.0);
-          gl_FragColor = vec4(uColor * a * 0.3, 1.0); }`,
+          gl_FragColor = vec4(uColor, a * 0.3); }`,
     }),
   );
   outer.add(atmo);
@@ -130,7 +127,7 @@ function buildScene(w: number, h: number) {
     pulse.push(p);
     phase.push(Math.random() * Math.PI * 2);
   };
-  const amber = C(colors.brandSecondary);
+  const amber = C(colors.globeLand);
   const orange = C(colors.brandPrimary);
   for (let i = 0; i < LAND_DOTS.length; i += 2) {
     const lat = LAND_DOTS[i], lon = LAND_DOTS[i + 1];
@@ -167,7 +164,7 @@ function buildScene(w: number, h: number) {
       }
     });
   });
-  spin.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(ringPoints), new THREE.LineBasicMaterial({ color: colors.brandSecondary, transparent: true, opacity: 0.65, blending: THREE.AdditiveBlending, depthWrite: false })));
+  spin.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(ringPoints), new THREE.LineBasicMaterial({ color: colors.brandPrimary, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false })));
 
   const pointMat = new THREE.ShaderMaterial({
     transparent: true,
@@ -185,13 +182,23 @@ function buildScene(w: number, h: number) {
   g.setAttribute("aPhase", new THREE.Float32BufferAttribute(phase, 1));
   spin.add(new THREE.Points(g, pointMat));
 
-  const borderMaterial = new THREE.LineBasicMaterial({ color: colors.brandPrimary, transparent: true, opacity: 0.57, blending: THREE.AdditiveBlending, depthWrite: false });
+  const borderMaterial = new THREE.LineBasicMaterial({ color: colors.globeLand, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false });
   const borders: any[] = [];
   WORLD_OUTLINES.forEach((ring) => {
     const points = ring.map(([lon, lat]) => toVec(lat, lon, 1.003));
     for (let i = 1; i < points.length; i++) borders.push(points[i-1], points[i]);
   });
   spin.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(borders), borderMaterial));
+
+  // Survey grid reinforces the architectural character without competing with copy.
+  const grid: any[] = [];
+  for (let lat = -60; lat <= 60; lat += 30) {
+    for (let lon = -180; lon < 180; lon += 4) grid.push(toVec(lat, lon, 1.002), toVec(lat, lon + 4, 1.002));
+  }
+  for (let lon = -180; lon < 180; lon += 30) {
+    for (let lat = -88; lat < 88; lat += 4) grid.push(toVec(lat, lon, 1.002), toVec(lat + 4, lon, 1.002));
+  }
+  spin.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(grid), new THREE.LineBasicMaterial({ color: colors.globeLand, transparent: true, opacity: 0.12, depthWrite: false })));
 
   // France outline
   const outline: any[] = [];
@@ -213,7 +220,7 @@ function buildScene(w: number, h: number) {
   });
   const paris = toVec(PARIS.lat, PARIS.lon, 1).normalize();
   const arcs: any[][] = [];
-  const arcSegments: any[] = [];
+  const routeGeometries: any[] = [];
   const pins: any[] = [];
   CITIES.forEach(([la, lo]) => {
     const end = toVec(la, lo, 1).normalize();
@@ -226,10 +233,12 @@ function buildScene(w: number, h: number) {
       pts.push(v);
     }
     arcs.push(pts);
-    for (let i = 1; i < pts.length; i++) arcSegments.push(pts[i-1], pts[i]);
+    const route = new THREE.BufferGeometry().setFromPoints(pts);
+    route.setDrawRange(0, 0);
+    routeGeometries.push(route);
+    spin.add(new THREE.Line(route, arcMat));
     pins.push(toVec(la, lo, 1.01), toVec(la, lo, 1.13));
   });
-  spin.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(arcSegments), arcMat));
   spin.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pins), arcMat));
 
   // Travelling pulses
@@ -237,7 +246,7 @@ function buildScene(w: number, h: number) {
   const pulsePos = new Float32Array(arcs.length * 3);
   const pc: number[] = [], ps: number[] = [], pp: number[] = [], pph: number[] = [];
   arcs.forEach(() => {
-    pc.push(1, 0.85, 0.6);
+    pc.push(orange.r, orange.g, orange.b);
     ps.push(5.5);
     pp.push(0);
     pph.push(0);
@@ -248,11 +257,11 @@ function buildScene(w: number, h: number) {
   pulseGeo.setAttribute("aPulse", new THREE.Float32BufferAttribute(pp, 1));
   pulseGeo.setAttribute("aPhase", new THREE.Float32BufferAttribute(pph, 1));
   spin.add(new THREE.Points(pulseGeo, pointMat));
-  const offsets = arcs.map((_, i) => (i * 0.37) % 1);
-
-  const updatePulses = (t: number) => {
+  const updatePulses = (progress: number, reduced = false) => {
     arcs.forEach((pts, i) => {
-      const u = (t * 0.22 + offsets[i]) % 1;
+      const draw = reduced ? 1 : Math.min(1, Math.max(0, 0.42 + progress * 0.7 - i * 0.045));
+      routeGeometries[i].setDrawRange(0, Math.floor(draw * (pts.length - 1)) + 1);
+      const u = reduced ? 0 : draw < 1 ? draw : (progress * 0.32 + i * 0.08) % 1;
       const f = u * (pts.length - 1);
       const a = pts[Math.floor(f)];
       const b = pts[Math.min(pts.length - 1, Math.floor(f) + 1)];
@@ -283,9 +292,12 @@ function createRenderer(canvas: any, gl: ExpoWebGLRenderingContext) {
   }
 }
 
-type Props = { scrollY: SharedValue<number>; dragYaw: SharedValue<number>; screenH: number; contentBottom: SharedValue<number> };
+type Props = { scrollY: SharedValue<number>; screenH: number };
 
-export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
+export function Globe({ scrollY, screenH }: Props) {
+  const styles = useStyles();
+  const { colors: theme, scheme } = useTheme();
+  const t = useCopy();
   const [failed, setFailed] = useState(false);
   const [textured, setTextured] = useState(false);
   const raf = useRef<number | null>(null);
@@ -340,7 +352,7 @@ export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
       const renderer = createRenderer(canvas, gl);
       renderer.setPixelRatio(1);
       renderer.setSize(w, h, false);
-      renderer.setClearColor(new THREE.Color(colors.surface), 1);
+      renderer.setClearColor(new THREE.Color(colors.surface), 0);
 
       const s = buildScene(w, h);
       let disposed = false;
@@ -353,7 +365,7 @@ export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
       loadEarthTexture(s.earth, () => disposed).then(() => { if (!disposed) setTextured(true); }).catch((error) => console.warn("Earth detail unavailable", error));
       const halfH = 4 * Math.tan(22.5 * DEG);
       const halfW = halfH * (w / h);
-      const heroScale = halfW * 1.3;
+      const heroScale = Math.min(halfW * 1.44, halfH * 0.68);
       const t0 = Date.now();
       let previousTime = t0;
       let smoothScroll = Math.max(0, scrollY.value);
@@ -366,28 +378,26 @@ export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
         const dt = Math.min(0.05, Math.max(0.001, (now - previousTime) / 1000));
         previousTime = now;
         const reduced = reducedMotion.current;
-        const t = reduced ? 0 : (now - t0) / 1000;
         const previousScroll = smoothScroll;
         smoothScroll = reduced ? Math.max(0, scrollY.value) : followGlobeScroll(smoothScroll, scrollY.value, dt);
         const speed = Math.min(1, Math.abs(smoothScroll - previousScroll) / (dt * screenH * 2.5));
         scrollEnergy = reduced ? 0 : lerp(scrollEnergy, speed, 1 - Math.exp(-8 * dt));
         const pose = globeScrollPose(smoothScroll / screenH, reduced);
         const scale = heroScale * pose.zoom;
-        const topY = halfH - ((contentBottom.value + 55) / screenH) * 2 * halfH;
-        const endY = -halfH - scale * 0.64;
-        s.outer.position.set(halfW * pose.side, lerp(topY - heroScale * 0.95, endY, pose.travel) + heroScale * pose.bob, 0);
+        const progress = reduced ? 0 : smoothScroll / screenH;
+        s.outer.position.set(halfW * pose.side, -halfH + heroScale * pose.bob, 0);
         s.outer.scale.setScalar(scale);
         s.spin.rotation.set(
-          -6 * DEG + pose.pitch + Math.sin(t * 0.12) * 0.012,
-          -8 * DEG + pose.yaw + Math.sin(t * 0.1) * 0.045 + dragYaw.value,
+          -6 * DEG + pose.pitch,
+          -2.4 * DEG + pose.yaw,
           pose.roll,
         );
-        s.pointMat.uniforms.uTime.value = t;
+        s.pointMat.uniforms.uTime.value = progress;
         s.pointMat.uniforms.uGroupScale.value = scale;
-        s.halo.material.uniforms.uTime.value = t;
+        s.halo.material.uniforms.uTime.value = progress;
         s.halo.material.uniforms.uScrollEnergy.value = scrollEnergy;
-        s.arcMat.opacity = 0.36 + scrollEnergy * 0.12;
-        s.updatePulses(t);
+        s.arcMat.opacity = 0.72 + scrollEnergy * 0.1;
+        s.updatePulses(progress, reduced);
 
         renderer.render(s.scene, s.camera);
         gl.endFrameEXP();
@@ -400,21 +410,21 @@ export function Globe({ scrollY, dragYaw, screenH, contentBottom }: Props) {
   };
 
   return (
-    <View style={styles.root} testID="globe-3d">
+    <View style={[styles.root, { opacity: scheme === "light" ? 0.17 : 0.82 }]} testID="globe-3d" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {failed ? (
-        <Text style={styles.error} testID="globe-error">3D Earth is unavailable on this device.</Text>
+        <Text style={styles.error} testID="globe-error">{t.globeError}</Text>
       ) : (
         <View style={StyleSheet.absoluteFill} testID={textured ? "globe-texture-ready" : "globe-texture-loading"}>
           <GLView style={StyleSheet.absoluteFill} onContextCreate={onContextCreate} testID="globe-canvas" />
         </View>
       )}
-      <LinearGradient colors={[colors.transparent, colors.surface]} style={styles.fade} />
+      <LinearGradient colors={[theme.transparent, theme.surface]} style={styles.fade} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   root: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none" },
-  error: { position: "absolute", top: "70%", alignSelf: "center", color: colors.onSurfaceTertiary, fontFamily: fonts.body, fontSize: 12 },
-  fade: { position: "absolute", bottom: 0, left: 0, right: 0, height: "21%", pointerEvents: "none" },
-});
+  error: { position: "absolute", top: "70%", alignSelf: "center", color: c.onSurfaceTertiary, fontFamily: fonts.body, fontSize: 12 },
+  fade: { position: "absolute", bottom: 0, left: 0, right: 0, height: "12%", pointerEvents: "none" },
+}));

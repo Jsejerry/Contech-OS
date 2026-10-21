@@ -10,7 +10,8 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { ErrorBoundary } from "@/src/components/error-boundary";
 import { queryClient } from "@/src/query-client";
-import { colors } from "@/src/theme";
+import { useTheme } from "@/src/theme";
+import { PreferencesProvider } from "@/src/preferences";
 
 // Disable logbox errors etc so that users can see the app
 // and agent works as expected.
@@ -34,16 +35,19 @@ export default function RootLayout() {
 
   if (!loaded && !error) return null;
 
+  return <PreferencesProvider><ErrorBoundary><AppShell /></ErrorBoundary></PreferencesProvider>;
+}
+
+function AppShell() {
+  const { colors, scheme } = useTheme();
   return (
-    <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.surface }}>
         <QueryClientProvider client={queryClient}>
           <KeyboardProvider>
-            <StatusBar style="light" />
+            <StatusBar style={scheme === "dark" ? "light" : "dark"} />
             <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }} />
           </KeyboardProvider>
         </QueryClientProvider>
       </GestureHandlerRootView>
-    </ErrorBoundary>
   );
 }

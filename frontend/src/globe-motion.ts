@@ -1,25 +1,14 @@
-const clamp = (value: number) => Math.min(1, Math.max(0, value));
-const smooth = (start: number, end: number, value: number) => {
-  const t = clamp((value - start) / (end - start));
-  return t * t * (3 - 2 * t);
-};
-
-/** Absolute scroll position drives every pose, so scrolling back retraces the motion. */
+/** A docked hemisphere: every change is a function of scroll, never elapsed time. */
 export function globeScrollPose(progress: number, reducedMotion = false) {
   const p = Number.isFinite(progress) ? Math.max(0, progress) : 0;
-  const reveal = smooth(0, 0.42, p);
-  const dock = smooth(0.26, 1.1, p);
-  const travel = smooth(0, 1.1, p);
-  const later = Math.max(0, p - 1.1);
-
   return {
-    zoom: reducedMotion ? 1 : 1 + 0.14 * reveal - 0.28 * dock,
-    travel,
-    yaw: reducedMotion ? 0 : 0.8 * reveal + 0.24 * dock + later * 0.3,
-    pitch: reducedMotion ? 0 : 0.24 * reveal - 0.12 * dock + Math.sin(later * 0.55) * 0.045,
-    roll: reducedMotion ? 0 : Math.sin(p * 1.4) * 0.075 * reveal * (1 - 0.65 * dock),
-    side: reducedMotion ? 0 : Math.sin(p * 0.8) * 0.16 * dock,
-    bob: reducedMotion ? 0 : Math.sin(later * 0.8) * 0.035,
+    zoom: reducedMotion ? 1 : 1 - 0.08 * Math.sin(p * 0.85),
+    travel: 0,
+    yaw: reducedMotion ? 0 : p * 0.2,
+    pitch: reducedMotion ? 0 : Math.sin(p * 0.7) * 0.12,
+    roll: reducedMotion ? 0 : Math.sin(p * 0.65) * 0.035,
+    side: reducedMotion ? 0 : Math.sin(p * 0.9) * 0.28,
+    bob: reducedMotion ? 0 : Math.sin(p * 1.1) * 0.07,
   };
 }
 

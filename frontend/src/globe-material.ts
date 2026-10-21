@@ -11,7 +11,7 @@ export function earthMaterial() {
       uOcean: { value: new THREE.Color(colors.ocean) },
       uLand: { value: new THREE.Color(colors.globeLand) },
       uRim: { value: new THREE.Color(colors.atmosphere) },
-      uCities: { value: new THREE.Color(colors.brandSecondary) },
+      uCities: { value: new THREE.Color(colors.globeLand) },
     },
     vertexShader: `varying vec3 vLocal; varying vec3 vN;
       void main(){vLocal=position; vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
@@ -32,7 +32,7 @@ export function earthMaterial() {
         vec3 col=mix(uOcean,ground,land)*light;
         float rim=pow(1.0-max(n.z,0.0),4.0);
         col+=uRim*rim*0.28;
-        col+=uCities*pow(sampleMap.a,1.15)*2.6;
+        col+=uCities*pow(sampleMap.a,1.15)*1.1;
         gl_FragColor=vec4(col,1.0);
       }`,
   });

@@ -1,267 +1,74 @@
 import Feather from "@react-native-vector-icons/feather";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  interpolateColor,
-  type SharedValue,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import { getWaitlistCount } from "@/src/api";
+import { ChapterHeading } from "@/src/components/chapter-heading";
+import { DualCards, EventPreview, PilotPreview } from "@/src/components/product-previews";
+import { Reveal, Section } from "@/src/components/reveal";
+import { PrimaryButton } from "@/src/components/ui";
+import { useCopy } from "@/src/content";
+import { fonts, makeStyles, useTheme } from "@/src/theme";
 
-import { Reveal, Section, useScrollInfo, useSectionY } from "@/src/components/reveal";
-import { Accent, Body, Eyebrow, Headline } from "@/src/components/ui";
-import { tapSelect } from "@/src/haptics";
-import { colors as C, fonts, makeStyles, useTheme } from "@/src/theme";
-
-const STEPS = [
-  { t: "Discover", icon: "search", d: "Find relevant solutions, companies, experts and opportunities." },
-  { t: "Connect", icon: "link", d: "Identify and engage with the right people and organizations." },
-  { t: "Pilot", icon: "flag", d: "Turn promising connections into real-world projects." },
-  { t: "Intelligence", icon: "bar-chart-2", d: "Understand emerging technologies, market movements and ecosystem activity." },
-];
-
-function Step({ i, progress, step }: { i: number; progress: SharedValue<number>; step: (typeof STEPS)[number] }) {
+export function WorksSection({ onY, onJoin }: { onY: (y: number) => void; onJoin: () => void }) {
   const styles = useStyles();
+  const t = useCopy();
   const { colors } = useTheme();
-  const at = i / (STEPS.length - 1);
-  const dot = useAnimatedStyle(() => {
-    const t = interpolate(progress.value, [at - 0.08, at], [0, 1], Extrapolation.CLAMP);
-    return {
-      backgroundColor: interpolateColor(t, [0, 1], [C.surfaceSecondary, C.brandPrimary]),
-      borderColor: interpolateColor(t, [0, 1], [C.borderStrong, C.brandSecondary]),
-      transform: [{ scale: 0.9 + 0.1 * t }],
-    };
-  });
-  const text = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [at - 0.15, at], [0.4, 1], Extrapolation.CLAMP),
-  }));
-  return (
-    <View style={styles.step} testID={`works-step-${step.t.toLowerCase()}`}>
-      <Animated.View style={[styles.stepDot, dot]}>
-        <Feather name={step.icon as any} size={18} color={colors.onSurface} />
-      </Animated.View>
-      <Animated.View style={[styles.stepBody, text]}>
-        <Text style={styles.stepN}>{`MODULE 0${i + 1}`}</Text>
-        <Text style={styles.stepT}>{step.t}</Text>
-        <Text style={styles.stepD}>{step.d}</Text>
-      </Animated.View>
+  const [feature, setFeature] = useState(0);
+  const { data: count } = useQuery({ queryKey: ["waitlist-count"], queryFn: getWaitlistCount });
+  return <Section testID="section-works" onY={onY} style={styles.wrap}>
+    <Reveal><ChapterHeading index={2} title={t.howTitle} accent={t.howAccent} lead={t.howLead} /></Reveal>
+    <Text testID="product-preview-heading" style={styles.kicker}>{t.preview}</Text>
+    <View style={styles.tabs}>
+      {t.tabs.map((label, i) => <Pressable key={i} testID={`feature-tab-${i}`} accessibilityRole="tab" accessibilityState={{ selected: feature === i }} onPress={() => setFeature(i)} style={({ pressed }) => [styles.tab, feature === i && styles.tabOn, pressed && styles.pressed]}>
+        <Feather name={(["layers", "bar-chart-2", "radio"] as const)[i]} size={16} color={feature === i ? colors.blue : colors.muted} /><Text style={[styles.tabText, feature === i && styles.tabTextOn]}>{label}</Text>
+      </Pressable>)}
     </View>
-  );
-}
-
-function Timeline() {
-  const styles = useStyles();
-  const { scrollY, screenH } = useScrollInfo();
-  const sectionY = useSectionY();
-  const top = useSharedValue(0);
-  const height = useSharedValue(1);
-  const progress = useDerivedValue(() => {
-    const start = sectionY.value + top.value - screenH * 0.62;
-    return interpolate(scrollY.value, [start, start + height.value], [0, 1], Extrapolation.CLAMP);
-  });
-  const fill = useAnimatedStyle(() => ({ height: `${progress.value * 100}%` }));
-  return (
-    <View
-      style={styles.timeline}
-      onLayout={(e) => {
-        top.value = e.nativeEvent.layout.y;
-        height.value = e.nativeEvent.layout.height;
-      }}
-      testID="works-timeline"
-    >
-      <View style={styles.track}>
-        <Animated.View style={[styles.trackFill, fill]} />
-      </View>
-      {STEPS.map((s, i) => (
-        <Step key={s.t} i={i} step={s} progress={progress} />
-      ))}
+    <View testID="product-workspace" style={styles.workspace}>
+      <View style={styles.workspaceHeader}><View style={styles.windowDots}>{[0, 1, 2].map((i) => <View key={i} style={styles.windowDot} />)}</View><Text testID="workspace-name" style={styles.workspaceName}>CONTECH OS / {t.workspace}</Text><Feather name="maximize-2" size={11} color={colors.muted} /></View>
+      <View style={styles.workspaceContent}>{feature === 0 ? <DualCards /> : feature === 1 ? <PilotPreview /> : <EventPreview />}</View>
+      <Text testID="product-sample-label" style={styles.sample}>{t.sample}</Text>
     </View>
-  );
-}
-
-function FlipCard() {
-  const styles = useStyles();
-  const [side, setSide] = useState<"need" | "offer">("need");
-  const rot = useSharedValue(0);
-  const flip = (s: "need" | "offer") => {
-    tapSelect();
-    setSide(s);
-    rot.value = withSpring(s === "need" ? 0 : 180, { damping: 14, stiffness: 90 });
-  };
-  const front = useAnimatedStyle(() => ({
-    transform: [{ perspective: 1000 }, { rotateY: `${rot.value}deg` }],
-    opacity: rot.value < 90 ? 1 : 0,
-  }));
-  const back = useAnimatedStyle(() => ({
-    transform: [{ perspective: 1000 }, { rotateY: `${rot.value - 180}deg` }],
-    opacity: rot.value >= 90 ? 1 : 0,
-  }));
-
-  return (
-    <View>
-      <View style={styles.seg}>
-        {(["need", "offer"] as const).map((s) => (
-          <Pressable key={s} testID={`dual-card-${s}-tab`} onPress={() => flip(s)} style={[styles.segBtn, side === s && styles.segOn]}>
-            <Text style={[styles.segText, side === s && styles.segTextOn]}>{s === "need" ? "Need" : "Offer"}</Text>
-          </Pressable>
-        ))}
-      </View>
-      <Pressable testID="dual-card" onPress={() => flip(side === "need" ? "offer" : "need")} style={styles.flipBox}>
-        <Animated.View style={[styles.face, styles.faceNeed, front]}>
-          <Text style={styles.faceTag}>● ACTIVE NEED · LYON, FR</Text>
-          <Text style={styles.faceT}>Automated rebar inspection across 3 jobsites</Text>
-          <View style={styles.metaRow}>
-            <Text style={styles.meta}>TRL 7+</Text>
-            <Text style={styles.meta}>Deploy Q3</Text>
-            <Text style={styles.meta}>Pilot · 8 wks</Text>
-          </View>
-          <Text style={styles.hint}>Tap to flip →</Text>
-        </Animated.View>
-        <Animated.View style={[styles.face, styles.faceOffer, back]}>
-          <Text style={[styles.faceTag, styles.faceTagOffer]}>● MATCHED OFFER · 94% FIT</Text>
-          <Text style={styles.faceT}>AI vision QA for rebar, deployed on 40+ sites</Text>
-          <View style={styles.metaRow}>
-            <Text style={styles.meta}>TRL 8</Text>
-            <Text style={styles.meta}>Ready in 2 wks</Text>
-            <Text style={styles.meta}>ROI tracked</Text>
-          </View>
-          <Text style={styles.hint}>← Tap to flip</Text>
-        </Animated.View>
-      </Pressable>
+    <View style={styles.featureDescription}>
+      <Text style={styles.featureNumber}>0{feature + 1}</Text>
+      <View style={styles.flex}><Text testID="feature-title" style={styles.featureTitle}>{t.features[feature].title}</Text><Text testID="feature-description" style={styles.featureBody}>{t.features[feature].body}</Text></View>
     </View>
-  );
-}
-
-const FEATURES = [
-  { icon: "layout", t: "Pilot Playbooks & KPI Dashboards", d: "Pre-configured templates for success metrics, master agreements, and weekly milestone tracking." },
-  { icon: "radio", t: "Live Event Mode", d: "Embedded event technology that instantly turns event networking into active platform projects." },
-];
-
-export function WorksSection({ onY }: { onY: (y: number) => void }) {
-  const styles = useStyles();
-  const { colors } = useTheme();
-  return (
-    <Section style={styles.wrap} testID="section-works" onY={onY}>
-      <Reveal>
-        <Eyebrow>HOW IT WORKS</Eyebrow>
-        <Headline size={34}>
-          From fragmented information to <Accent>actionable connections.</Accent>
-        </Headline>
-        <Body style={styles.lead}>Four modules. One standardized, end-to-end workflow.</Body>
-      </Reveal>
-      <Timeline />
-      <Reveal style={styles.block}>
-        <Text style={styles.kicker} testID="product-preview-heading">CORE FEATURES & PRODUCT PREVIEW</Text>
-        <Text style={styles.previewLabel} testID="dual-card-preview-label">DUAL DYNAMIC CARDS · ILLUSTRATIVE PREVIEW</Text>
-        <Text style={styles.sub}>One entity, two sides: seamlessly switch between active Needs and available Offers in real time.</Text>
-      </Reveal>
-      <Reveal delay={1}>
-        <FlipCard />
-      </Reveal>
-      {FEATURES.map((f, i) => (
-        <Reveal key={f.t} delay={i} style={styles.feat}>
-          <View style={styles.featIcon}>
-            <Feather name={f.icon as any} size={18} color={colors.brandPrimary} />
-          </View>
-          <View style={styles.flex}>
-            <Text style={styles.featT}>{f.t}</Text>
-            <Text style={styles.featD}>{f.d}</Text>
-          </View>
-        </Reveal>
-      ))}
-    </Section>
-  );
+    <View style={styles.cta} testID="section-join">
+      <Text testID="join-section-title" style={styles.ctaTitle}>{t.ctaTitle}</Text>
+      <Text testID="join-section-description" style={styles.ctaBody}>{t.ctaBody}</Text>
+      <PrimaryButton testID="final-join-waitlist-button" label={t.join} onPress={onJoin} />
+      <Text testID="waitlist-count-text" style={styles.count}>{typeof count === "number" && count > 0 ? `${count} ${t.count}` : t.first}</Text>
+    </View>
+    <View style={styles.footer}><Text testID="footer-motto" style={styles.motto}>{t.footer}</Text><Text testID="footer-copyright" style={styles.copyright}>© 2026 ConTech OS</Text></View>
+  </Section>;
 }
 
 const useStyles = makeStyles((c) => ({
-  wrap: { paddingHorizontal: 24, paddingTop: 120 },
+  wrap: { paddingHorizontal: 24, paddingTop: 48, paddingBottom: 48, borderTopWidth: 1, borderTopColor: c.border },
+  kicker: { fontFamily: fonts.bodyMedium, fontSize: 9, letterSpacing: 1.4, color: c.muted, marginTop: 36, marginBottom: 15 },
+  tabs: { flexDirection: "row", gap: 6, marginBottom: 17 },
+  tab: { flex: 1, minHeight: 65, paddingHorizontal: 4, paddingVertical: 10, gap: 7, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: c.border, borderRadius: 4, backgroundColor: c.glass },
+  tabOn: { backgroundColor: c.blueTint, borderColor: c.borderStrong },
+  tabText: { fontFamily: fonts.bodyMedium, fontSize: 10, color: c.muted, textAlign: "center" },
+  tabTextOn: { color: c.blue },
+  workspace: { borderRadius: 7, backgroundColor: c.surfaceSecondary, borderWidth: 1, borderColor: c.borderStrong, overflow: "hidden" },
+  workspaceHeader: { flexDirection: "row", alignItems: "center", gap: 12, borderBottomWidth: 1, borderBottomColor: c.border, paddingHorizontal: 13, paddingVertical: 14, backgroundColor: c.surface },
+  windowDots: { flexDirection: "row", gap: 3 },
+  windowDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: c.borderStrong },
+  workspaceName: { flex: 1, fontFamily: fonts.body, fontSize: 7, letterSpacing: 0.6, color: c.muted },
+  workspaceContent: { padding: 18, minHeight: 392 },
+  sample: { fontFamily: fonts.body, fontSize: 9, color: c.muted, textAlign: "center", paddingVertical: 12, borderTopWidth: 1, borderTopColor: c.border },
+  featureDescription: { flexDirection: "row", gap: 14, marginTop: 24, minHeight: 145 },
+  featureNumber: { fontFamily: fonts.display, fontSize: 24, color: c.blue },
   flex: { flex: 1 },
-  lead: { marginTop: 14 },
-  timeline: { marginTop: 32, paddingLeft: 0 },
-  track: { position: "absolute", left: 21, top: 22, bottom: 40, width: 2, backgroundColor: c.surfaceTertiary, overflow: "hidden" },
-  trackFill: { width: 2, backgroundColor: c.brandPrimary },
-  step: { flexDirection: "row", gap: 16, marginBottom: 28 },
-  stepDot: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  stepBody: { flex: 1, paddingTop: 2 },
-  stepN: { fontFamily: fonts.bodyMedium, fontSize: 10, letterSpacing: 2, color: c.brandSecondary },
-  stepT: { fontFamily: fonts.displayMedium, fontSize: 24, color: c.onSurface, marginTop: 2 },
-  stepD: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: c.onSurfaceTertiary, marginTop: 4 },
-  block: { marginTop: 40, marginBottom: 16 },
-  kicker: { fontFamily: fonts.bodySemi, fontSize: 12, letterSpacing: 2.4, color: c.brandPrimary },
-  previewLabel: { fontFamily: fonts.bodyMedium, fontSize: 9, letterSpacing: 1.1, color: c.onSurfaceTertiary, marginTop: 18 },
-  sub: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: c.onSurfaceTertiary, marginTop: 8 },
-  seg: {
-    flexDirection: "row",
-    alignSelf: "flex-start",
-    padding: 4,
-    borderRadius: 999,
-    backgroundColor: c.surfaceSecondary,
-    borderWidth: 1,
-    borderColor: c.border,
-    marginBottom: 16,
-  },
-  segBtn: { height: 44, paddingHorizontal: 20, borderRadius: 999, justifyContent: "center" },
-  segOn: { backgroundColor: c.brandPrimary },
-  segText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: c.onSurfaceTertiary },
-  segTextOn: { color: c.onBrandPrimary },
-  flipBox: { height: 210 },
-  face: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    backfaceVisibility: "hidden",
-  },
-  faceNeed: { backgroundColor: c.surfaceSecondary, borderColor: c.borderStrong },
-  faceOffer: { backgroundColor: c.surfaceSecondary, borderColor: c.brandPrimary },
-  faceTag: { fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 1.6, color: c.onSurfaceTertiary },
-  faceTagOffer: { color: c.brandPrimary },
-  faceT: { fontFamily: fonts.displayMedium, fontSize: 24, lineHeight: 29, color: c.onSurface, marginTop: 12 },
-  metaRow: { flexDirection: "row", gap: 8, marginTop: 16, flexWrap: "wrap" },
-  meta: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    color: c.onSurfaceSecondary,
-    backgroundColor: c.surfaceTertiary,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    overflow: "hidden",
-  },
-  hint: { position: "absolute", right: 20, bottom: 16, fontFamily: fonts.body, fontSize: 12, color: c.muted },
-  feat: {
-    flexDirection: "row",
-    gap: 14,
-    marginTop: 12,
-    padding: 16,
-    borderRadius: 20,
-    backgroundColor: c.glass,
-    borderWidth: 1,
-    borderColor: c.glassBorder,
-  },
-  featIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: c.brandGlow,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  featT: { fontFamily: fonts.displayMedium, fontSize: 17, color: c.onSurface },
-  featD: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.onSurfaceTertiary, marginTop: 4 },
+  featureTitle: { fontFamily: fonts.displayMedium, fontSize: 21, lineHeight: 25, color: c.onSurface },
+  featureBody: { fontFamily: fonts.body, fontSize: 13, lineHeight: 21, color: c.onSurfaceTertiary, marginTop: 10 },
+  cta: { borderTopWidth: 1, borderTopColor: c.border, marginTop: 24, paddingTop: 30 },
+  ctaTitle: { fontFamily: fonts.displayMedium, fontSize: 30, color: c.onSurface, letterSpacing: -0.6 },
+  ctaBody: { fontFamily: fonts.body, fontSize: 14, lineHeight: 22, color: c.onSurfaceTertiary, marginTop: 12, marginBottom: 24 },
+  count: { textAlign: "center", fontFamily: fonts.body, fontSize: 11, color: c.muted, marginTop: 14 },
+  footer: { marginTop: 48, alignItems: "center", gap: 22 },
+  motto: { fontFamily: fonts.display, fontSize: 17, lineHeight: 25, color: c.onSurfaceTertiary, textAlign: "center" },
+  copyright: { fontFamily: fonts.body, fontSize: 10, letterSpacing: 1.2, color: c.muted },
+  pressed: { opacity: 0.6 },
 }));

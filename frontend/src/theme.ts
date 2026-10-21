@@ -1,13 +1,14 @@
-// Design tokens for ConTech OS. Dark-only brand; keys match /app/design_guidelines.json.
+// Shared light/dark tokens. Orange is reserved for primary actions and signal details.
 import { useMemo } from "react";
-import { Appearance, StyleSheet, useColorScheme } from "react-native";
+import { StyleSheet } from "react-native";
+import { usePreferences } from "@/src/preferences";
 
 export type ColorScheme = "light" | "dark";
 
 const dark = {
-  surface: "#020711",
-  onSurface: "#FFFFFF",
-  surfaceSecondary: "#0C1320",
+  surface: "#080E19",
+  onSurface: "#F1F5FA",
+  surfaceSecondary: "#101D2F",
   onSurfaceSecondary: "#E2E4E9",
   surfaceTertiary: "#1E2538",
   onSurfaceTertiary: "#A3A6AE",
@@ -15,11 +16,11 @@ const dark = {
   onSurfaceInverse: "#000000",
   muted: "#8A8F9E",
 
-  brand: "#FF5C00",
+  brand: "#FF762E",
   onBrand: "#090B0E",
-  brandPrimary: "#FF5C00",
+  brandPrimary: "#FF762E",
   onBrandPrimary: "#090B0E",
-  brandSecondary: "#F7931E",
+  brandSecondary: "#FF985D",
   onBrandSecondary: "#0B0F19",
   brandTertiary: "#2A3582",
   onBrandTertiary: "#FFFFFF",
@@ -34,12 +35,12 @@ const dark = {
   onInfo: "#FFFFFF",
 
   border: "#1E2538",
-  borderStrong: "#2A3582",
-  divider: "#151A29",
+  borderStrong: "#345375",
+  divider: "#1C2C40",
 
   // Extras
-  glass: "rgba(12,19,32,0.88)",
-  glassStrong: "rgba(2,7,17,0.94)",
+  glass: "rgba(16,29,47,0.94)",
+  glassStrong: "rgba(8,14,25,0.97)",
   glassBorder: "rgba(255,255,255,0.08)",
   brandGlow: "rgba(255,98,0,0.18)",
   brandGlowStrong: "rgba(255,98,0,0.35)",
@@ -50,6 +51,11 @@ const dark = {
   ocean: "#010814",
   orbit: "rgba(105,129,160,0.11)",
   heroOutline: "#606978",
+  blue: "#8CBDED",
+  blueStrong: "#2C6FAD",
+  blueTint: "#162D48",
+  blueprint: "rgba(120,169,215,0.055)",
+  blueprintStrong: "rgba(120,169,215,0.14)",
   transparent: "transparent",
 };
 
@@ -57,20 +63,26 @@ export type ThemeColors = typeof dark;
 
 export const defaultScheme = "dark" satisfies ColorScheme;
 
-export const themes: { light: ThemeColors; dark: ThemeColors } = { light: dark, dark };
+const light: ThemeColors = {
+  ...dark,
+  surface: "#F0F4F8", onSurface: "#101D2F",
+  surfaceSecondary: "#FFFFFF", onSurfaceSecondary: "#263D55",
+  surfaceTertiary: "#E2EAF3", onSurfaceTertiary: "#51657B",
+  surfaceInverse: "#101D2F", onSurfaceInverse: "#FFFFFF", muted: "#63768A",
+  border: "#D2DEEA", borderStrong: "#9BB5D0", divider: "#D8E2ED",
+  glass: "rgba(255,255,255,0.95)", glassStrong: "rgba(240,244,248,0.98)",
+  glassBorder: "rgba(16,29,47,0.1)", orbit: "rgba(44,111,173,0.12)",
+  blue: "#225F98", blueStrong: "#226AA9", blueTint: "#E1EDFA",
+  blueprint: "rgba(44,90,135,0.055)", blueprintStrong: "rgba(44,90,135,0.15)",
+  error: "#BC3030", success: "#227546", heroOutline: "#7D91A6",
+};
+export const themes = { light, dark };
 
 export const colors = dark;
 
-export function setColorScheme(scheme: ColorScheme | null) {
-  Appearance.setColorScheme?.(scheme ?? "unspecified");
-}
-
-setColorScheme?.(defaultScheme);
-
 export function useTheme(): { scheme: ColorScheme; colors: ThemeColors } {
-  const system = useColorScheme();
-  const scheme: ColorScheme = system === "light" || system === "dark" ? system : defaultScheme;
-  return { scheme, colors: themes[scheme] ?? themes.dark };
+  const { mode } = usePreferences();
+  return { scheme: mode, colors: themes[mode] };
 }
 
 export function makeStyles<T extends StyleSheet.NamedStyles<T> | StyleSheet.NamedStyles<any>>(

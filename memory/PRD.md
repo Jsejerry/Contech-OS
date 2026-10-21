@@ -1,5 +1,36 @@
 # ConTech OS — Landing App PRD
 
+## Current scope — October 2026 landing redesign
+The latest user requests supersede the historical layouts below. Use a blue/black, construction-inspired mobile landing page with restrained orange. Header: hamburger left, About Us inline, smaller single-line ConTech OS logo right. The content must be primary. A half-globe stays docked behind the bottom of the viewport, subtly shifts/zooms and rotates only with scroll, and draws orange connections from France as the user scrolls. No time-driven globe rotation. Three chapters in order:
+1. What it does: Bridging the Post-Event Void; lost momentum and pilot friction; dynamic Need/Offer cards, algorithmic matchmaking, integrated pilot workspace.
+2. Who it connects: six architectural modules around the central symbol, not six generic SaaS cards.
+3. How it works: interactive high-fidelity illustrative previews of dual cards, pilot playbooks/KPIs and live event handoff.
+Persistent orange Join the Waitlist action plus in-content CTA; working existing database-backed form. Menu includes About Us, theme (dark/light), English/French/Spanish, Instagram and Gmail. About Us also includes a language selector.
+
+### Current implementation
+- `preferences.tsx` persists explicit language/theme choices with AsyncStorage; `theme.ts` contains both palettes; `content.ts` translates all rendered landing sections, navigation, About Us and waitlist states in EN/FR/ES.
+- `app/index.tsx` renders exactly What → Who → How, with a single native Modal host for safe menu/About/form transitions and a fixed waitlist dock.
+- New blueprint linework and crane/building details are native Views, not hosted artwork. Native logo fallback is used directly (no requests to the unavailable legacy logo asset).
+- Interactive problem selector/solution accordions, architectural audience plan, Need/Offer tabs, weekly pilot milestones and event-to-project illustrative handoff.
+- Globe keeps managed-storage NASA texture, blue boundaries/grid, orange routes originating at Paris. Geometry draw ranges, traveling points, rotation and position are derived from absolute scroll. Reduced motion gives a stable pose/routes. Alpha-correct halo avoids opaque rectangular artifacts in light mode.
+- Physical globe colors stay navy/blue across themes; light mode uses a quiet lower-opacity globe. Surface/text/panel/button colors all use shared theme tokens.
+- No new backend APIs or auth; existing FastAPI/MongoDB waitlist preserved. Product screens are clearly labeled illustrative sample data as requested, not live product features.
+- Social icons open Instagram and Gmail homepages because no verified account/address was provided. Optional `Constants.expoConfig.extra.instagramUrl` / `contactEmail` can point them to owner-supplied destinations later; no fabricated handle/email.
+
+### Current verification / backlog
+- TypeScript, frontend lint and Python server lint passed. API root and waitlist count responded through current public URL.
+- Mobile visual checks passed at 390x844: all three chapters, audience switch, pilot week switch, About language selection, French copy, dark/light mode, texture ready.
+- Iteration5: backend14/14 passed; partial frontend flows passed. Reported event preview tap collision with bottom dock and deprecated pointerEvents props. Fixed by measuring dock height and reserving that actual viewport space on ScrollView (not only content padding), so no content control can occupy dock bounds. Migrated new decorative views to style.pointerEvents. Main verified six normal-click event handoff/reset cycles across390/320 plus dock open/close.
+- Iteration6: all requested functional frontend flows passed: EN/FR/ES from menu/About, translated form validation/success, theme and language persistence/reload/rapid toggles, chapter navigation, native single-modal transitions in web preview, social destinations, real waitlist success/duplicates/position,320px FR/ES layout, globe scroll/reverse/idle/reduced motion. See `/app/test_reports/iteration_6.json`.
+- Iteration6 mentioned a cosmetic pointerEvents warning. Current source has no deprecated props and fresh final real-submit self-test did NOT reproduce it (log `/root/.emergent/automation_output/20261021_083550/console_20261021_083550.log`). Do not weaken disabled controls or patch dependencies to suppress it; exact dependency attribution is unconfirmed. Only known Chromium ReadPixels performance warning remains in final captured log.
+- Frontend TypeScript/lints pass; reviewed testing agent's only code change (test import-path hardening for pytest workers). No production backend changes.
+- P0: None in tested requested flows.
+- P1: Physical iOS/Android acceptance and performance; verified social profile/contact email.
+- P2: Optional waitlist referral sharing and admin export.
+
+---
+## Historical implementation notes (superseded where they conflict with current scope)
+
 ## Original problem statement
 Mobile landing page for ConTech OS (construction company + global networking app). Hero: 3D Earth globe focused on France, France glowing orange in the middle, "ConTech OS" + logo above it — only those two things. On scroll, the glowing globe animates to the bottom of the screen and the wordmark moves to the top-left. Sections: What it does → How it connects → How it works → Join Waitlist button. Interactive, 3D scroll-animated, follow brand PDF colors and reference image.
 

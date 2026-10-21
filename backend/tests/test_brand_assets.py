@@ -41,6 +41,12 @@ class TestBrandAssets:
         assert response.status_code == 503
 
     def test_origin_cache_policy_earth(self):
+        import sys
+        from pathlib import Path
+
+        backend_dir = Path(__file__).resolve().parents[1]
+        if str(backend_dir) not in sys.path:
+            sys.path.insert(0, str(backend_dir))
         from brand_assets import brand_asset
 
         response = brand_asset("earth")

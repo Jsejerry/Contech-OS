@@ -1,7 +1,7 @@
 import Feather from "@react-native-vector-icons/feather";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import Animated, { FadeIn, SlideInDown, ZoomIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,6 +10,7 @@ import { joinWaitlist, type WaitlistResult } from "@/src/api";
 import { PrimaryButton } from "@/src/components/ui";
 import { tapSelect, tapSuccess } from "@/src/haptics";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
+import { useCopy } from "@/src/content";
 
 const ROLES = ["Construction company", "Tech provider", "Startup", "Investor", "Expert", "University"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -18,12 +19,13 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
   const insets = useSafeAreaInsets();
   const styles = useStyles();
   const { colors } = useTheme();
+  const t = useCopy();
   const qc = useQueryClient();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<string | null>(null);
   const [focus, setFocus] = useState<"name" | "email" | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<"nameError" | "emailError" | "submitError" | null>(null);
   const [result, setResult] = useState<WaitlistResult | null>(null);
 
   const m = useMutation({
@@ -33,7 +35,7 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
       tapSuccess();
       qc.invalidateQueries({ queryKey: ["waitlist-count"] });
     },
-    onError: (e: Error) => setError(e.message),
+    onError: () => setError("submitError"),
   });
 
   const close = () => {
@@ -50,15 +52,14 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
   const submit = () => {
     if (m.isPending) return;
     setError(null);
-    if (!name.trim()) return setError("Please enter your name.");
-    if (!EMAIL_RE.test(email.trim())) return setError("Please enter a valid email.");
+    if (!name.trim()) return setError("nameError");
+    if (!EMAIL_RE.test(email.trim())) return setError("emailError");
     m.mutate({ name: name.trim(), email: email.trim(), role });
   };
 
-  return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={close} statusBarTranslucent>
+  return visible ? (
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.flex} keyboardVerticalOffset={0}>
-        <Pressable style={styles.backdrop} onPress={close} testID="waitlist-backdrop" />
+        <Pressable style={styles.backdrop} onPress={close} testID="waitlist-backdrop" accessibilityRole="button" accessibilityLabel={t.close} />
         {visible && (
           <Animated.View
             entering={SlideInDown.springify().damping(20)}
@@ -66,7 +67,7 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
             testID="waitlist-sheet"
           >
             <View style={styles.handle} />
-            <Pressable testID="waitlist-close-button" onPress={close} style={styles.close} hitSlop={8}>
+            <Pressable testID="waitlist-close-button" accessibilityRole="button" accessibilityLabel={t.close} onPress={close} style={styles.close} hitSlop={8}>
               <Feather name="x" size={20} color={colors.onSurfaceTertiary} />
             </Pressable>
 
@@ -76,25 +77,26 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
                   <Feather name="check" size={36} color={colors.onBrandPrimary} />
                 </Animated.View>
                 <Text style={styles.title} testID="waitlist-success-title">
-                  {result.already_joined ? "You're already on the list" : "You're on the list"}
+                  {result.already_joined ? t.duplicate : t.success}
                 </Text>
                 <Text style={styles.sub} testID="waitlist-success-position">
-                  {"You're "}<Text style={styles.pos}>#{result.position}</Text> in line, {result.name.split(" ")[0]}. {"We'll email "}
-                  {result.email} when the first pilot cohort opens.
+                  {t.position}: <Text style={styles.pos}>#{result.position}</Text>{"\n"}{t.saved} {result.email}.
                 </Text>
                 <View style={styles.full}>
-                  <PrimaryButton testID="waitlist-done-button" label="Done" icon="check" onPress={close} />
+                  <PrimaryButton testID="waitlist-done-button" label={t.done} icon="check" onPress={close} />
                 </View>
               </Animated.View>
             ) : (
               <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-                <Text style={styles.kicker}>LIMITED SPOTS · PILOT COHORT</Text>
-                <Text style={styles.title}>Join the waitlist</Text>
-                <Text style={styles.sub}>Be first to connect with the global construction innovation network.</Text>
+                <Text testID="waitlist-kicker" style={styles.kicker}>{t.early}</Text>
+                <Text testID="waitlist-title" style={styles.title}>{t.formTitle}</Text>
+                <Text testID="waitlist-description" style={styles.sub}>{t.formLead}</Text>
 
-                <Text style={styles.label}>Full name</Text>
+                <Text testID="waitlist-name-label" style={styles.label}>{t.name}</Text>
                 <TextInput
                   testID="waitlist-name-input"
+                  accessibilityLabel={t.name}
+                  maxLength={80}
                   value={name}
                   onChangeText={setName}
                   placeholder="Camille Durand"
@@ -105,9 +107,10 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
                   autoCapitalize="words"
                   returnKeyType="next"
                 />
-                <Text style={styles.label}>Work email</Text>
+                <Text testID="waitlist-email-label" style={styles.label}>{t.email}</Text>
                 <TextInput
                   testID="waitlist-email-input"
+                  accessibilityLabel={t.email}
                   value={email}
                   onChangeText={setEmail}
                   placeholder="camille@company.com"
@@ -121,7 +124,7 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
                   returnKeyType="done"
                   onSubmitEditing={submit}
                 />
-                <Text style={styles.label}>I am a… (optional)</Text>
+                <Text testID="waitlist-role-label" style={styles.label}>{t.role}</Text>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -129,30 +132,32 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
                   style={styles.chipRow}
                   keyboardShouldPersistTaps="handled"
                 >
-                  {ROLES.map((r) => (
+                  {ROLES.map((r, index) => (
                     <Pressable
                       key={r}
                       testID={`waitlist-role-${r.toLowerCase().replace(/\s+/g, "-")}`}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: role === r }}
                       onPress={() => {
                         tapSelect();
                         setRole(role === r ? null : r);
                       }}
                       style={[styles.chip, role === r && styles.chipOn]}
                     >
-                      <Text style={[styles.chipText, role === r && styles.chipTextOn]}>{r}</Text>
+                      <Text style={[styles.chipText, role === r && styles.chipTextOn]}>{t.roles[index]}</Text>
                     </Pressable>
                   ))}
                 </ScrollView>
 
                 {error && (
-                  <Text style={styles.error} testID="waitlist-error">
-                    {error}
+                  <Text style={styles.error} testID="waitlist-error" accessibilityRole="alert">
+                    {t[error]}
                   </Text>
                 )}
                 <View style={styles.full}>
                   <PrimaryButton
                     testID="waitlist-submit-button"
-                    label={m.isPending ? "Joining…" : "Reserve my spot"}
+                    label={m.isPending ? t.submitting : t.reserve}
                     onPress={submit}
                     disabled={m.isPending}
                     right={m.isPending ? <ActivityIndicator color={colors.onBrandPrimary} /> : undefined}
@@ -163,8 +168,7 @@ export function WaitlistSheet({ visible, onClose }: { visible: boolean; onClose:
           </Animated.View>
         )}
       </KeyboardAvoidingView>
-    </Modal>
-  );
+  ) : null;
 }
 
 const useStyles = makeStyles((c) => ({
@@ -193,8 +197,8 @@ const useStyles = makeStyles((c) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  kicker: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2.4, color: c.brandPrimary, marginBottom: 8 },
-  title: { fontFamily: fonts.displayMedium, fontSize: 30, color: c.onSurface, letterSpacing: -0.6, textAlign: "left" },
+  kicker: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2.4, color: c.blue, marginBottom: 8 },
+  title: { fontFamily: fonts.displayMedium, fontSize: 30, color: c.onSurface, letterSpacing: -0.6, textAlign: "left", paddingRight: 20 },
   sub: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: c.onSurfaceTertiary, marginTop: 8, marginBottom: 8 },
   pos: { color: c.brandPrimary, fontFamily: fonts.bodySemi },
   label: { fontFamily: fonts.bodyMedium, fontSize: 13, color: c.onSurfaceSecondary, marginTop: 16, marginBottom: 8 },

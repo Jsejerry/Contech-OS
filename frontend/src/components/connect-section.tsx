@@ -1,194 +1,74 @@
 import Feather from "@react-native-vector-icons/feather";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pressable, Text, useWindowDimensions, View } from "react-native";
-import Animated, {
-  Easing,
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from "react-native-reanimated";
-
+import { ChapterHeading } from "@/src/components/chapter-heading";
 import { LogoMark } from "@/src/components/logo";
 import { Reveal, Section } from "@/src/components/reveal";
-import { Accent, Body, Eyebrow, Headline } from "@/src/components/ui";
+import { useCopy } from "@/src/content";
 import { tapSelect } from "@/src/haptics";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 
-const AUDIENCES = [
-  { k: "builders", icon: "home", t: "Construction companies", s: "Builders", d: "Publish real jobsite challenges and get matched with proven, deployment-ready solutions." },
-  { k: "tech", icon: "cpu", t: "Technology providers", s: "Tech", d: "Showcase your track record and reach contractors actively looking for what you build." },
-  { k: "startups", icon: "zap", t: "Startups", s: "Startups", d: "Turn event handshakes into pilots with clear KPIs, templates and fast approvals." },
-  { k: "investors", icon: "trending-up", t: "Investors", s: "Investors", d: "Track traction, pilot results and emerging ConTech before the market does." },
-  { k: "experts", icon: "award", t: "Experts", s: "Experts", d: "Share know-how across borders and get discovered by teams who need it." },
-  { k: "universities", icon: "book-open", t: "Universities & institutions", s: "Research", d: "Bridge research and the jobsite with industry partners worldwide." },
-];
+const MODULES = [
+  { key: "builders", icon: "home" }, { key: "tech", icon: "cpu" },
+  { key: "startups", icon: "zap" }, { key: "investors", icon: "trending-up" },
+  { key: "experts", icon: "tool" }, { key: "universities", icon: "book-open" },
+] as const;
 
-function PulseRing({ size }: { size: number }) {
-  const styles = useStyles();
-  const v = useSharedValue(0);
-  useEffect(() => {
-    v.value = withRepeat(withTiming(1, { duration: 2200, easing: Easing.out(Easing.quad) }), -1, false);
-  }, [v]);
-  const a = useAnimatedStyle(() => ({ opacity: 0.6 * (1 - v.value), transform: [{ scale: 1 + v.value * 1.2 }] }));
-  return <Animated.View style={[styles.ring, { width: size, height: size, borderRadius: size / 2 }, a]} />;
-}
-
-export function ConnectSection({ onY }: { onY: (y: number) => void }) {
+export function ConnectSection({ onY, height }: { onY: (y: number) => void; height: number }) {
   const styles = useStyles();
   const { colors } = useTheme();
+  const t = useCopy();
   const { width } = useWindowDimensions();
-  const [sel, setSel] = useState(0);
-  const size = Math.min(width - 48, 380);
-  const R = size * 0.36;
-  const c = size / 2;
-  const NODE = 56;
-  const active = AUDIENCES[sel];
-
-  return (
-    <Section style={styles.wrap} testID="section-connect" onY={onY}>
-      <Reveal>
-        <Eyebrow>WHO IT CONNECTS</Eyebrow>
-        <Headline size={34}>
-          Built for the people moving construction <Accent>forward.</Accent>
-        </Headline>
-        <Body style={styles.lead}>This is where the global ecosystem becomes tangible. Tap a module to explore.</Body>
-      </Reveal>
-
-      <Reveal delay={1} style={[styles.orbit, { width: size, height: size }]}>
-        <View style={[styles.orbitCircle, { width: R * 2, height: R * 2, borderRadius: R, left: c - R, top: c - R }]} />
-        {AUDIENCES.map((a, i) => {
-          const ang = (i * 60 - 90) * (Math.PI / 180);
-          const x = c + R * Math.cos(ang);
-          const y = c + R * Math.sin(ang);
-          const on = i === sel;
-          return (
-            <View key={a.k}>
-              <View
-                style={[
-                  styles.spoke,
-                  on && styles.spokeOn,
-                  { width: R, left: c, top: c, transform: [{ rotate: `${i * 60 - 90}deg` }], transformOrigin: "left center" },
-                ]}
-              />
-              <Pressable
-                testID={`audience-node-${a.k}`}
-                onPress={() => {
-                  tapSelect();
-                  setSel(i);
-                }}
-                style={[styles.nodeWrap, { left: x - 45, top: y - NODE / 2 }]}
-              >
-                <View style={[styles.node, on && styles.nodeOn]}>
-                  <Feather name={a.icon as any} size={20} color={on ? colors.onBrandPrimary : colors.onSurfaceSecondary} />
-                </View>
-                <Text style={[styles.nodeLabel, on && styles.nodeLabelOn]} numberOfLines={1}>
-                  {a.s}
-                </Text>
-              </Pressable>
-            </View>
-          );
-        })}
-        <View style={[styles.center, { left: c - 40, top: c - 40, pointerEvents: "none" }]}>
-          <PulseRing size={80} />
-          <View style={styles.centerCore}>
-            <LogoMark size={40} />
-          </View>
-        </View>
-      </Reveal>
-
-      <Reveal delay={2}>
-        <Animated.View key={active.k} entering={FadeInDown.springify().damping(16)} style={styles.detail} testID="audience-detail-card">
-          <Text style={styles.detailKicker}>{`0${sel + 1} / 06`}</Text>
-          <Text style={styles.detailT} testID="audience-detail-title">
-            {active.t}
-          </Text>
-          <Text style={styles.detailD}>{active.d}</Text>
-        </Animated.View>
-      </Reveal>
-
-      <Reveal style={styles.global}>
-        <Eyebrow>BUILT FOR A GLOBAL INDUSTRY</Eyebrow>
-        <Headline size={30}>
-          Construction innovation has <Accent>no borders.</Accent>
-        </Headline>
-        <Body style={styles.lead}>
-          ConTech OS is designed to connect ecosystems across markets, disciplines and regions — making local expertise discoverable within a
-          global network.
-        </Body>
-      </Reveal>
-      <Reveal delay={1} style={styles.stats}>
-        {[
-          ["6", "Audiences"],
-          ["4", "Modules"],
-          ["1", "Global network"],
-        ].map(([n, l]) => (
-          <View key={l} style={styles.stat}>
-            <Text style={styles.statN}>{n}</Text>
-            <Text style={styles.statL}>{l}</Text>
-          </View>
-        ))}
-      </Reveal>
-    </Section>
-  );
+  const [selected, setSelected] = useState(0);
+  const size = Math.min(width - 48, 430);
+  const nodeW = (size - 84) / 2;
+  return <Section testID="section-connect" onY={onY} style={[styles.wrap, { minHeight: height }]}>
+    <Reveal><ChapterHeading index={1} title={t.whoTitle} accent={t.whoAccent} lead={t.whoLead} /></Reveal>
+    <View style={styles.planHeading}><Text testID="ecosystem-plan-label" style={styles.planLabel}>{t.ecosystem}</Text><Text style={styles.planLabel}>06 / 01</Text></View>
+    <View testID="audience-architecture" style={[styles.plan, { width: size, height: 352 }]}>
+      <View style={[styles.centerAxis, { left: size / 2 }]} />
+      <View style={[styles.centerHorizontal, { width: size }]} />
+      {[0, 1, 2].map((row) => <View key={row} style={[styles.crossbar, { top: 51 + row * 120, left: nodeW, width: 84 }]} />)}
+      {MODULES.map((m, i) => <Pressable key={m.key} testID={`audience-node-${m.key}`} accessibilityRole="button" accessibilityLabel={t.audiences[i].title} accessibilityState={{ selected: selected === i }} onPress={() => { tapSelect(); setSelected(i); }} style={({ pressed }) => [styles.module, { width: nodeW, left: i % 2 ? size - nodeW : 0, top: Math.floor(i / 2) * 120 }, selected === i && styles.moduleOn, pressed && styles.pressed]}>
+        <View style={styles.moduleTop}><Feather name={m.icon} size={20} color={selected === i ? colors.blue : colors.onSurfaceTertiary} /><Text style={styles.moduleNumber}>0{i + 1}</Text></View>
+        <Text testID={`audience-label-${m.key}`} style={[styles.moduleLabel, selected === i && styles.moduleLabelOn]}>{t.audiences[i].label}</Text>
+        <View style={[styles.corner, selected === i && styles.cornerOn]} />
+      </Pressable>)}
+      <View testID="ecosystem-central-symbol" style={[styles.core, { left: size / 2 - 29, pointerEvents: "none" }]}><LogoMark size={31} /></View>
+      <Text style={[styles.osLabel, { left: size / 2 - 32 }]}>CONTECH OS</Text>
+    </View>
+    <View style={styles.detail} testID="audience-detail-card">
+      <Text testID="audience-detail-index" style={styles.detailIndex}>0{selected + 1} — {t.activeModule}</Text>
+      <Text testID="audience-detail-title" style={styles.detailTitle}>{t.audiences[selected].title}</Text>
+      <Text testID="audience-detail-description" style={styles.detailBody}>{t.audiences[selected].body}</Text>
+    </View>
+    <View style={styles.bottom}><Feather name="globe" size={15} color={colors.blue} /><Text testID="ecosystem-caption" style={styles.caption}>{t.network}</Text></View>
+  </Section>;
 }
 
 const useStyles = makeStyles((c) => ({
-  wrap: { paddingHorizontal: 24, paddingTop: 120 },
-  lead: { marginTop: 14 },
-  orbit: { alignSelf: "center", marginTop: 24 },
-  orbitCircle: { position: "absolute", borderWidth: 1, borderColor: c.border, borderStyle: "dashed" },
-  spoke: { position: "absolute", height: 1, backgroundColor: c.surfaceTertiary },
-  spokeOn: { backgroundColor: c.brandPrimary, height: 2 },
-  nodeWrap: { position: "absolute", width: 90, alignItems: "center" },
-  node: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: c.glassStrong,
-    borderWidth: 1,
-    borderColor: c.borderStrong,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  nodeOn: { backgroundColor: c.brandPrimary, borderColor: c.brandSecondary },
-  nodeLabel: { marginTop: 6, fontFamily: fonts.bodyMedium, fontSize: 11, color: c.onSurfaceTertiary },
-  nodeLabelOn: { color: c.onSurface },
-  center: { position: "absolute", width: 80, height: 80, alignItems: "center", justifyContent: "center" },
-  ring: { position: "absolute", borderWidth: 1.5, borderColor: c.brandPrimary },
-  centerCore: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: c.surface,
-    borderWidth: 1,
-    borderColor: c.brandGlowStrong,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  detail: {
-    marginTop: 20,
-    padding: 20,
-    borderRadius: 20,
-    backgroundColor: c.glass,
-    borderWidth: 1,
-    borderColor: c.brandGlowStrong,
-  },
-  detailKicker: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2, color: c.brandPrimary },
-  detailT: { fontFamily: fonts.displayMedium, fontSize: 22, color: c.onSurface, marginTop: 6 },
-  detailD: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: c.onSurfaceTertiary, marginTop: 6 },
-  global: { marginTop: 96 },
-  stats: { flexDirection: "row", marginTop: 24, gap: 12 },
-  stat: {
-    flex: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    backgroundColor: c.glass,
-    borderWidth: 1,
-    borderColor: c.glassBorder,
-  },
-  statN: { fontFamily: fonts.displayMedium, fontSize: 32, color: c.brandPrimary },
-  statL: { fontFamily: fonts.body, fontSize: 12, color: c.onSurfaceTertiary, marginTop: 2 },
+  wrap: { paddingHorizontal: 24, paddingTop: 48, paddingBottom: 80, borderTopWidth: 1, borderTopColor: c.border },
+  planHeading: { flexDirection: "row", justifyContent: "space-between", marginTop: 30, paddingBottom: 16 },
+  planLabel: { fontFamily: fonts.bodyMedium, fontSize: 8, letterSpacing: 1.4, color: c.muted },
+  plan: { alignSelf: "center", marginTop: 5 },
+  centerAxis: { position: "absolute", top: 51, bottom: 61, width: 1, backgroundColor: c.borderStrong },
+  centerHorizontal: { position: "absolute", top: 171, height: 1, backgroundColor: c.borderStrong },
+  crossbar: { position: "absolute", height: 1, backgroundColor: c.borderStrong },
+  module: { position: "absolute", minHeight: 102, padding: 12, backgroundColor: c.glass, borderWidth: 1, borderColor: c.border, borderTopWidth: 2 },
+  moduleOn: { borderColor: c.borderStrong, backgroundColor: c.blueTint },
+  moduleTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
+  moduleNumber: { fontFamily: fonts.body, fontSize: 9, color: c.muted },
+  moduleLabel: { fontFamily: fonts.bodyMedium, fontSize: 9, lineHeight: 14, color: c.onSurfaceTertiary, letterSpacing: 0.15 },
+  moduleLabelOn: { color: c.onSurface },
+  corner: { position: "absolute", right: -1, bottom: -1, width: 7, height: 7, borderRightWidth: 1, borderBottomWidth: 1, borderColor: c.borderStrong },
+  cornerOn: { borderColor: c.brandPrimary, borderRightWidth: 2, borderBottomWidth: 2 },
+  core: { position: "absolute", top: 142, width: 58, height: 58, backgroundColor: c.surfaceSecondary, borderWidth: 1, borderColor: c.borderStrong, alignItems: "center", justifyContent: "center" },
+  osLabel: { position: "absolute", top: 210, width: 64, textAlign: "center", fontFamily: fonts.bodyMedium, fontSize: 7, letterSpacing: 0.6, color: c.blue },
+  detail: { borderLeftWidth: 2, borderLeftColor: c.blueStrong, padding: 18, backgroundColor: c.glass, minHeight: 170 },
+  detailIndex: { fontFamily: fonts.bodyMedium, fontSize: 8, letterSpacing: 1.2, color: c.blue },
+  detailTitle: { fontFamily: fonts.displayMedium, fontSize: 23, color: c.onSurface, marginTop: 10 },
+  detailBody: { fontFamily: fonts.body, fontSize: 13, lineHeight: 21, color: c.onSurfaceTertiary, marginTop: 10 },
+  bottom: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 24 },
+  caption: { fontFamily: fonts.body, fontSize: 11, color: c.muted, flexShrink: 1 },
+  pressed: { opacity: 0.65 },
 }));

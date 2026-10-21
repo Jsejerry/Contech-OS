@@ -1,6 +1,6 @@
 import { createContext, type PropsWithChildren, useContext } from "react";
 import { type StyleProp, View, type ViewStyle } from "react-native";
-import Animated, { Extrapolation, interpolate, type SharedValue, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { Extrapolation, interpolate, type SharedValue, useAnimatedStyle, useReducedMotion, useSharedValue } from "react-native-reanimated";
 
 type ScrollInfo = { scrollY: SharedValue<number>; screenH: number };
 export const ScrollCtx = createContext<ScrollInfo | null>(null);
@@ -36,22 +36,20 @@ export function Section({
   );
 }
 
-/** 3D tilt-in reveal driven by scroll. Must be a direct child of <Section>. */
+/** A restrained entrance keeps typography primary. Must be a direct child of Section. */
 export function Reveal({ children, style, delay = 0 }: PropsWithChildren<{ style?: StyleProp<ViewStyle>; delay?: number }>) {
+  const reducedMotion = useReducedMotion();
   const { scrollY, screenH } = useScrollInfo();
   const sectionY = useSectionY();
   const top = useSharedValue(0);
 
   const anim = useAnimatedStyle(() => {
     const start = sectionY.value + top.value - screenH * 0.98 + delay * 40;
-    const t = interpolate(scrollY.value, [start, start + screenH * 0.32], [0, 1], Extrapolation.CLAMP);
+    const t = reducedMotion ? 1 : interpolate(scrollY.value, [start, start + screenH * 0.32], [0, 1], Extrapolation.CLAMP);
     return {
-      opacity: t,
+      opacity: 0.55 + t * 0.45,
       transform: [
-        { perspective: 900 },
-        { translateY: (1 - t) * 70 },
-        { rotateX: `${(1 - t) * 38}deg` },
-        { scale: 0.9 + 0.1 * t },
+        { translateY: (1 - t) * 16 },
       ],
     };
   });

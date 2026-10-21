@@ -80,7 +80,7 @@ export function PrimaryButton({
   const { colors } = useTheme();
   return (
     <PressScale testID={testID} onPress={onPress} disabled={disabled} style={[styles.primary, big && styles.primaryBig]}>
-      <Text style={[styles.primaryText, big && { fontSize: 17 }]}>{label}</Text>
+      <Text testID={`${testID}-label`} style={[styles.primaryText, big && { fontSize: 17 }]}>{label}</Text>
       {right ?? <Feather name={icon} size={big ? 20 : 18} color={colors.onBrandPrimary} />}
     </PressScale>
   );
@@ -108,17 +108,18 @@ const useStyles = makeStyles((c) => ({
   accent: { color: c.brandPrimary },
   body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.onSurfaceTertiary },
   primary: {
-    height: 52,
-    borderRadius: 999,
+    minHeight: 52,
+    borderRadius: 5,
     backgroundColor: c.brandPrimary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    paddingHorizontal: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   primaryBig: { height: 60 },
-  primaryText: { fontFamily: fonts.bodySemi, fontSize: 15, color: c.onBrandPrimary },
+  primaryText: { fontFamily: fonts.bodySemi, fontSize: 13, color: c.onBrandPrimary, flexShrink: 1, textAlign: "center" },
   ghost: {
     height: 52,
     borderRadius: 999,

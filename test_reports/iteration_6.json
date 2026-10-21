@@ -1,0 +1,49 @@
+{
+  "summary": "Frontend-only major regression completed on public preview URL. Requested language/theme/modal/waitlist/social/globe/320px checks passed end-to-end, including prior blocked event handoff/reset smoke without force clicks.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {
+        "component": "Expo web runtime console",
+        "issue": "Persistent warning still appears: `props.pointerEvents is deprecated. Use style.pointerEvents` (no functional blocker observed in tested flows)."
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_6.json",
+    "/app/test_reports/artifacts_iter6/initial_load_375.jpg",
+    "/app/test_reports/artifacts_iter6/flow_375_lightdark_globe.jpg",
+    "/app/test_reports/artifacts_iter6/layout_320_fr_es.jpg",
+    "/app/test_reports/artifacts_iter6/globe_light_mode_scan.jpg",
+    "/app/test_reports/artifacts_iter6/globe_reduced_motion.jpg"
+  ],
+  "action_items": [
+    "Trace and remove the remaining `props.pointerEvents` deprecation source to keep logs clean.",
+    "Optional: align frontend env key naming with platform standard if required by deployment (`EXPO_BACKEND_URL` vs current `EXPO_PUBLIC_BACKEND_URL`)."
+  ],
+  "critical_code_review_comments": [
+    "Single modal host transitions are working as intended: menu -> about -> waitlist, close button and backdrop dismissals all passed.",
+    "Waitlist flow is fully integrated with backend: validation errors, success with returned position, duplicate handling, done/reopen all passed.",
+    "Globe behavior checks passed for scroll-driven motion, reverse retrace, no autonomous idle movement in screenshot-byte checks, and reduced-motion static behavior.",
+    "Social links open valid external destinations: Instagram homepage and Gmail/Google Mail sign-in flow URL.",
+    "320px FR/ES checks passed with no horizontal overflow, visible persistent dock, and all 6 audience modules accessible."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_6.json"
+  ],
+  "success_rate": {
+    "backend": "N/A (skipped by request)",
+    "frontend": "97%"
+  },
+  "seed_data_creation": "Created new real waitlist records via UI submit using unique test emails: test_ui_iter6_*, test_fr_iter6_*, test_es_iter6_*@example.com.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Do not re-run backend for this scope. Event handoff/reset path is now stable with normal clicks at tested sizes. Keep using public preview URL and avoid force-clicking behind the fixed dock.",
+  "rca_of_issue": "Only unresolved item in this run is the recurring pointerEvents deprecation warning observed in Expo web logs/console. It did not break user flows, but source should be identified for clean runtime diagnostics."
+}

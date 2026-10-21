@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Make ConTech OS look like the supplied mobile reference image and use the article copy in the PDF; preserve true WebGL globe and database-backed waitlist."
+user_problem_statement: "Latest: three blue/black construction-inspired scroll chapters using provided What/Who/How copy; fixed background hemisphere with scroll-only rotation/France orange route drawing and responsive placement; left hamburger, smaller right one-line logo, About nav, persistent orange waitlist, theme and EN/FR/ES language controls, Instagram/Gmail links."
 backend:
   - task: "Waitlist persistence and duplicate handling regression"
     implemented: true
@@ -127,6 +127,34 @@ backend:
         agent: "main"
         comment: "Assets pass PNG, decoded RGBA size, 404 checks. Public cache header failure investigated: intentional preview ingress overwrite, not app defect. Origin cache policy verified separately; revised tests retain public functionality checks."
 frontend:
+  - task: "October three-chapter landing and preferences redesign"
+    implemented: true
+    working: true
+    file: "frontend/app/index.tsx; frontend/src/components; frontend/src/preferences.tsx; frontend/src/content.ts; frontend/src/theme.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Iteration6 functional regression passed all requested flows at mobile sizes including full language/theme persistence and real waitlist. Dock overlap fixed and self-verified6normalclickcycles. Final fresh realwaitlistsubmit success+Done also passed; no pointerEvents warning reproduced in final log. Only Chromium graphics performance warning, no rendererrors."
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented current requested design, chapter interactions, full translations/persisted themes, About, social homepages, persistent CTA and single native modal host. Self-tested 390px dark/light hero, all chapter navigation, investor module, pilot week2, About French. Lint/TS passed. Old hero-only splash, drag rotation and four-module timeline are intentionally superseded."
+  - task: "Docked scroll-only hemisphere and orange France routes"
+    implemented: true
+    working: true
+    file: "frontend/src/components/globe.tsx; frontend/src/globe-motion.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Iteration6 passed texture, wheel-driven globe pose, reverse retrace, static idle screenshot comparisons, reduced motion static state and light-mode scan. Physical native device performance not tested."
+      - working: "NA"
+        agent: "main"
+        comment: "Hemisphere centre remains at lower viewport edge, scroll drives rotation/shift/zoom, routes draw from Paris, no elapsed-time motion. Fixed halo alpha for light theme. Reduced motion fixed pose. Texture ready observed. Request runtime idle/scroll/reverse/reduced-motion verification; old motion tests describe superseded hero travel."
   - task: "Globe-only enhanced reversible scroll animation"
     implemented: true
     working: true
@@ -177,13 +205,12 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 3
+  test_sequence: 6
   run_ui: true
 test_plan:
   current_focus:
-    - "Globe-only enhanced reversible scroll animation"
-    - "Reference-matched hero and true 3D globe"
-    - "PDF article navigation and interactions"
+    - "October three-chapter landing and preferences redesign"
+    - "Docked scroll-only hemisphere and orange France routes"
     - "Waitlist form open close submit regression"
     - "Waitlist persistence and duplicate handling regression"
     - "Managed brand asset proxy"
@@ -191,6 +218,12 @@ test_plan:
   test_all: true
   test_priority: "high_first"
 agent_communication:
+  - agent: "main"
+    message: "FINAL: iteration6 all requested functionalflowspassed. Actual final waitlist submit/Done selftestpassed; no pointerEvents warning reproduced despite fullpending state, and appsource only style.pointerEvents. No unsafe workaroundto disabledPressable or dependency patch applied. Rootcause attribution suggestedbyRCA notconfirmedbysource, so documented cosmetic observation ratherthanclaimingupstreamfix. Protected APIenv remains EXPO_PUBLIC_BACKEND_URL asrequired, nooptionalrename. Readyforuserreview; physicaldeviceacceptanceandownedsocialdestinationsP1."
+  - agent: "main"
+    message: "Iteration5 event handoff/reset collision addressed after RCA: dock now reports measured height, ScrollView reserves viewport marginBottom equal to that height instead of scrolling under dock. Real content clipping prevents click collision, including Playwright scrollIntoView. Removed3new deprecated pointerEvents props. Backend test import-path fix reviewed and retained. Remaining frontend tests from iteration5 still required."
+  - agent: "main"
+    message: "Current public URL https://f1e4591a-0798-4347-8ef6-1a87e2b5898f.preview.emergentagent.com. Test latest redesign only; old hero and timeline expectations intentionally superseded. No auth; credentials doc explicitly says public landing. No mocked APIs, waitlist real. Product mockups labeled illustrative sample data per user. Social homepages intentional until verified destinations provided. Logo is now native fallback avoiding old inaccessible asset. Existing legacy /brand/logo may still503 and is not requested by frontend. Validate current flows and report all bugs, including small-phone clipping and persistence."
   - agent: "main"
     message: "Latest task strictly globe-only animation enhancement. No user-facing layout or copy changes. Frontend-only focused regression requested: wheel/touch scrolling, hero return, reduced-motion, navigation and waitlist open/close. Please add pure motion helper tests if appropriate; inspect actual scroll element (outer testID scrollTo did not move)."
   - agent: "main"
