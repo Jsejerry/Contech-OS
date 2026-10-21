@@ -219,6 +219,8 @@ test_plan:
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
+    message: "Latest narrow header update self-verified at390x844 and320x740: logo centered within2px, navbar language EN/FR/ES translates content, dropdown backdrop dismissal, menu theme controls removed, About andwaitlist unchanged, no horizontaloverflow. TS/lint pass. Only3frontendcomponentfiles changed. No backendchanges ornewdependencies."
+  - agent: "main"
     message: "FINAL: iteration6 all requested functionalflowspassed. Actual final waitlist submit/Done selftestpassed; no pointerEvents warning reproduced despite fullpending state, and appsource only style.pointerEvents. No unsafe workaroundto disabledPressable or dependency patch applied. Rootcause attribution suggestedbyRCA notconfirmedbysource, so documented cosmetic observation ratherthanclaimingupstreamfix. Protected APIenv remains EXPO_PUBLIC_BACKEND_URL asrequired, nooptionalrename. Readyforuserreview; physicaldeviceacceptanceandownedsocialdestinationsP1."
   - agent: "main"
     message: "Iteration5 event handoff/reset collision addressed after RCA: dock now reports measured height, ScrollView reserves viewport marginBottom equal to that height instead of scrolling under dock. Real content clipping prevents click collision, including Playwright scrollIntoView. Removed3new deprecated pointerEvents props. Backend test import-path fix reviewed and retained. Remaining frontend tests from iteration5 still required."

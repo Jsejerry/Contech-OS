@@ -5,7 +5,7 @@ import { useCopy } from "@/src/content";
 import { type Language, usePreferences } from "@/src/preferences";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 
-const LANGUAGES: { key: Language; label: string }[] = [{ key: "en", label: "English" }, { key: "fr", label: "Français" }, { key: "es", label: "Español" }];
+export const LANGUAGES: { key: Language; label: string }[] = [{ key: "en", label: "English" }, { key: "fr", label: "Français" }, { key: "es", label: "Español" }];
 
 export function LanguagePicker({ prefix }: { prefix: string }) {
   const [expanded, setExpanded] = useState(false);

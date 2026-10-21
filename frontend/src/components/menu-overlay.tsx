@@ -7,7 +7,6 @@ import { LanguagePicker } from "@/src/components/language-picker";
 import { Wordmark } from "@/src/components/logo";
 import { PrimaryButton } from "@/src/components/ui";
 import { useCopy } from "@/src/content";
-import { usePreferences } from "@/src/preferences";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 
 export type MenuTarget = "what" | "connect" | "works" | "join" | "about";
@@ -17,7 +16,6 @@ export function MenuOverlay({ visible, onClose, onSelect }: { visible: boolean; 
   const insets = useSafeAreaInsets();
   const styles = useStyles();
   const { colors } = useTheme();
-  const { mode, setMode } = usePreferences();
   const t = useCopy();
   const [linkError, setLinkError] = useState(false);
   const openSocial = async (kind: "instagram" | "gmail") => {
@@ -42,15 +40,6 @@ export function MenuOverlay({ visible, onClose, onSelect }: { visible: boolean; 
           </Pressable>)}
           <View style={styles.settings}>
             <LanguagePicker prefix="menu" />
-            <View style={styles.themeRow}>
-              <Feather name="sun" size={18} color={colors.blue} /><Text style={styles.settingLabel}>{t.theme}</Text>
-              <View style={styles.segment}>
-                {(["dark", "light"] as const).map((value) => <Pressable key={value} testID={`menu-theme-${value}`} accessibilityRole="radio" accessibilityState={{ checked: mode === value }} onPress={() => setMode(value)} style={[styles.themeButton, value === mode && styles.themeOn]}>
-                  <Feather name={value === "dark" ? "moon" : "sun"} size={14} color={value === mode ? colors.blue : colors.muted} />
-                  <Text style={[styles.themeText, value === mode && styles.themeTextOn]}>{t[value]}</Text>
-                </Pressable>)}
-              </View>
-            </View>
           </View>
           <View style={styles.socials}>
             {(["instagram", "gmail"] as const).map((kind) => <Pressable key={kind} testID={`menu-social-${kind}`} accessibilityRole="link" onPress={() => openSocial(kind)} style={({ pressed }) => [styles.social, pressed && styles.pressed]}>
@@ -76,13 +65,6 @@ const useStyles = makeStyles((c) => ({
   number: { fontFamily: fonts.bodyMedium, fontSize: 11, color: c.blue },
   linkText: { flex: 1, fontFamily: fonts.display, fontSize: 25, color: c.onSurface, letterSpacing: -0.5 },
   settings: { marginTop: 24 },
-  themeRow: { flexDirection: "row", minHeight: 64, alignItems: "center", gap: 12, borderTopWidth: 1, borderTopColor: c.divider },
-  settingLabel: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 15, color: c.onSurface },
-  segment: { flexDirection: "row", backgroundColor: c.surfaceSecondary, borderRadius: 6, borderWidth: 1, borderColor: c.border, padding: 3 },
-  themeButton: { flexDirection: "row", gap: 5, minHeight: 44, alignItems: "center", paddingHorizontal: 8, borderRadius: 3 },
-  themeOn: { backgroundColor: c.blueTint },
-  themeText: { fontFamily: fonts.bodyMedium, fontSize: 12, color: c.muted },
-  themeTextOn: { color: c.blue },
   socials: { flexDirection: "row", gap: 24, marginTop: 20 },
   social: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 8 },
   socialText: { fontFamily: fonts.body, fontSize: 13, color: c.onSurfaceSecondary },

@@ -1,5 +1,12 @@
 # ConTech OS — Landing App PRD
 
+## Latest narrow update — centered navigation logo
+- User requested only: centered logo, language option in top navbar, remove theme option; everything else unchanged.
+- Header now uses equal side columns around the centered single-line logo. Hamburger/About remain left; compact EN/FR/ES selector is right, with accessible dismissible native-modal dropdown.
+- Removed theme controls from menu; existing stored appearance and all other flows preserved. Menu/About language selectors remain available.
+- Changed only header.tsx, menu-overlay.tsx and exported the existing language list in language-picker.tsx. TypeScript/lint pass. Browser interaction checks at390x844 and320x740 verified exact logo centering, all three translations, dropdown dismissal, absent theme controls, About/waitlist open-close and no horizontal overflow. Screenshots `/tmp/header-update-390.jpg`, `/tmp/header-update-320.jpg`.
+- No new dependencies, APIs or outstanding issues from this update.
+
 ## Current scope — October 2026 landing redesign
 The latest user requests supersede the historical layouts below. Use a blue/black, construction-inspired mobile landing page with restrained orange. Header: hamburger left, About Us inline, smaller single-line ConTech OS logo right. The content must be primary. A half-globe stays docked behind the bottom of the viewport, subtly shifts/zooms and rotates only with scroll, and draws orange connections from France as the user scrolls. No time-driven globe rotation. Three chapters in order:
 1. What it does: Bridging the Post-Event Void; lost momentum and pilot friction; dynamic Need/Offer cards, algorithmic matchmaking, integrated pilot workspace.
