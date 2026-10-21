@@ -196,4 +196,4 @@ agent_communication:
   - agent: "main"
     message: "Final self-rerun: 15/15 backend checks passed after separating origin cache contract from preview ingress policy. Direct origin curl confirms cache-control public,max-age86400. No application regression from cache header report. See test_reports/pytest/final_regression.xml. All iteration2 UI checks passed; no physical device tested."
   - agent: "main"
-    message: "Visual redesign complete. Preview https://france-globe-os.preview.emergentagent.com. No auth; memory/test_credentials.md records this. No mocked APIs. Self-tests: hero, texture, menu, explore, audience selection, fresh waitlist close. Please test 390x844 plus small phone; check lower fade while scrolling. Preserve code unless tests need updates; report all failures."
+    message: "Visual redesign complete. Preview https://contech-os-app.preview.emergentagent.com. No auth; memory/test_credentials.md records this. No mocked APIs. Self-tests: hero, texture, menu, explore, audience selection, fresh waitlist close. Please test 390x844 plus small phone; check lower fade while scrolling. Preserve code unless tests need updates; report all failures."

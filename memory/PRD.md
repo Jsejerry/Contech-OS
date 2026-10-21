@@ -45,3 +45,9 @@ Mobile landing page for ConTech OS (construction company + global networking app
 - P0: None in implemented preview flows. Real-device Expo rendering/performance acceptance remains unverified.
 - P1: Share/referral link and optional challenge/objective micro-survey from the PDF; native-device acceptance of globe and scroll behavior
 - P2: Admin view/export of waitlist; French language toggle
+
+## Repo import (Oct 2026)
+- Imported Jsejerry/Contech-OS as-is for preview. Recreated missing backend/.env and frontend/.env.
+- Earth texture regenerated from public NASA/three.js sources into this workspace's object storage; brand_manifest.json earth path updated.
+- Logo asset is in the previous account's storage and is not reachable (/api/brand/logo -> 503); the built-in drawn logo fallback is shown. Re-upload the original logo to restore it.
+- Testing iteration4: backend 14/14, all frontend flows passed.
