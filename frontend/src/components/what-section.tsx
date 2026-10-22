@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChapterHeading } from "@/src/components/chapter-heading";
+import { HEADER_HEIGHT } from "@/src/components/header";
 import { Section } from "@/src/components/reveal";
 import { useCopy } from "@/src/content";
 import { tapSelect } from "@/src/haptics";
@@ -13,19 +14,19 @@ export function WhatSection({ onY, onExplore, height }: { onY: (y: number) => vo
   const { colors } = useTheme();
   const t = useCopy();
   const insets = useSafeAreaInsets();
-  const [problem, setProblem] = useState(0);
+  const [problem, setProblem] = useState<number | null>(null);
   const [solution, setSolution] = useState<number | null>(null);
-  return <Section testID="section-what" onY={onY} style={[styles.wrap, { minHeight: height, paddingTop: insets.top + 108 }]}>
+  return <Section testID="section-what" onY={onY} style={[styles.wrap, { minHeight: height, paddingTop: insets.top + HEADER_HEIGHT + 32 }]}>
     <ChapterHeading index={0} title={t.whatTitle} accent={t.whatAccent} lead={t.whatLead} />
     <View style={styles.problemBlock}>
       <Text testID="industry-problem-heading" style={styles.kicker}>{t.industry}</Text>
       <View style={styles.problemTabs}>
-        {t.problems.map((p, i) => <Pressable key={i} testID={`problem-tab-${i}`} accessibilityRole="tab" accessibilityState={{ selected: problem === i }} onPress={() => { tapSelect(); setProblem(i); }} style={[styles.problemTab, problem === i && styles.problemOn]}>
+        {t.problems.map((p, i) => <Pressable key={i} testID={`problem-tab-${i}`} accessibilityRole="button" accessibilityState={{ expanded: problem === i }} onPress={() => { tapSelect(); setProblem(problem === i ? null : i); }} style={[styles.problemTab, problem === i && styles.problemOn]}>
           <Feather name={i === 0 ? "link-2" : "clock"} size={15} color={problem === i ? colors.blue : colors.muted} />
           <Text testID={`problem-title-${i}`} style={[styles.problemLabel, problem === i && styles.problemLabelOn]}>{p.short}</Text>
         </Pressable>)}
       </View>
-      <Text testID="problem-description" style={styles.problemBody}>{t.problems[problem].body}</Text>
+      {problem !== null && <Text testID="problem-description" style={styles.problemBody}>{t.problems[problem].body}</Text>}
     </View>
     <View style={styles.solutions}>
       <View style={styles.solutionHeading}><View style={styles.signal} /><Text testID="contech-solution-heading" style={styles.kicker}>{t.solution}</Text></View>
@@ -59,7 +60,7 @@ const useStyles = makeStyles((c) => ({
   problemOn: { borderBottomColor: c.blue },
   problemLabel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: c.muted, flexShrink: 1 },
   problemLabelOn: { color: c.onSurface },
-  problemBody: { fontFamily: fonts.body, fontSize: 13, lineHeight: 21, color: c.onSurfaceTertiary, marginTop: 14, minHeight: 42 },
+  problemBody: { fontFamily: fonts.body, fontSize: 13, lineHeight: 21, color: c.onSurfaceTertiary, marginTop: 14 },
   solutions: { marginTop: 24, paddingHorizontal: 16, paddingTop: 17, backgroundColor: c.glass, borderWidth: 1, borderColor: c.border, borderRadius: 5 },
   solutionHeading: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
   signal: { width: 4, height: 4, backgroundColor: c.brandPrimary },

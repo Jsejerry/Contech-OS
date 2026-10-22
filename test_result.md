@@ -219,6 +219,8 @@ test_plan:
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
+    message: "Latestminimalcopy/Aboutfixverifiedbytestingagentiteration7(requiredbyuser). AllrequestedflowsPASS at320/390 EN/FR/ES:13px44hAboutbuttonseparatenavrow,modalactions,centeredlogo,headeroffsets,defaultcollapsedshortcopy,6audiences,3previews,dock,nooverflow. Reportonlycosmetic scrollTo warningandtransientMetrodisconnect; serviceshealthy. AppalreadyobjectformscrollTo, nowexplicitx:0added. Backend/globe/preferencesunchanged."
+  - agent: "main"
     message: "Latest narrow header update self-verified at390x844 and320x740: logo centered within2px, navbar language EN/FR/ES translates content, dropdown backdrop dismissal, menu theme controls removed, About andwaitlist unchanged, no horizontaloverflow. TS/lint pass. Only3frontendcomponentfiles changed. No backendchanges ornewdependencies."
   - agent: "main"
     message: "FINAL: iteration6 all requested functionalflowspassed. Actual final waitlist submit/Done selftestpassed; no pointerEvents warning reproduced despite fullpending state, and appsource only style.pointerEvents. No unsafe workaroundto disabledPressable or dependency patch applied. Rootcause attribution suggestedbyRCA notconfirmedbysource, so documented cosmetic observation ratherthanclaimingupstreamfix. Protected APIenv remains EXPO_PUBLIC_BACKEND_URL asrequired, nooptionalrename. Readyforuserreview; physicaldeviceacceptanceandownedsocialdestinationsP1."

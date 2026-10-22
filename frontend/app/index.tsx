@@ -6,7 +6,7 @@ import { AboutSheet } from "@/src/components/about-sheet";
 import { Blueprint } from "@/src/components/blueprint";
 import { ConnectSection } from "@/src/components/connect-section";
 import { Globe } from "@/src/components/globe";
-import { Header } from "@/src/components/header";
+import { Header, HEADER_HEIGHT } from "@/src/components/header";
 import { MenuOverlay, type MenuTarget } from "@/src/components/menu-overlay";
 import { ScrollCtx } from "@/src/components/reveal";
 import { WaitlistDock } from "@/src/components/waitlist-dock";
@@ -36,7 +36,7 @@ export default function Landing() {
     if (key === "join") return openWaitlist();
     if (key === "about") return setOverlay("about");
     setOverlay(null);
-    scrollRef.current?.scrollTo({ y: Math.max(0, ys.current[key] - insets.top - 82), animated: true });
+    scrollRef.current?.scrollTo({ x: 0, y: Math.max(0, ys.current[key] - insets.top - HEADER_HEIGHT - 8), animated: true });
   };
   const scrollInfo = useMemo(() => ({ scrollY, screenH: H }), [scrollY, H]);
   return <View style={styles.root} testID="landing-screen">

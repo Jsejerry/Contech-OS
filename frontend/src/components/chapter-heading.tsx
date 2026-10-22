@@ -22,7 +22,7 @@ const useStyles = makeStyles((c) => ({
   total: { color: c.muted },
   rule: { height: 1, flex: 1, backgroundColor: c.border },
   eyebrow: { fontFamily: fonts.bodyMedium, fontSize: 10, letterSpacing: 1.6, color: c.onSurfaceTertiary, maxWidth: "70%" },
-  title: { fontFamily: fonts.displayMedium, fontSize: 38, lineHeight: 42, letterSpacing: -1.2, color: c.onSurface },
+  title: { fontFamily: fonts.displayMedium, fontSize: 34, lineHeight: 38, letterSpacing: -0.9, color: c.onSurface },
   accent: { color: c.blue },
   lead: { fontFamily: fonts.body, fontSize: 14, lineHeight: 22, color: c.onSurfaceTertiary, marginTop: 20 },
 }));

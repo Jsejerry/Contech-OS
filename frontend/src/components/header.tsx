@@ -8,6 +8,8 @@ import { useCopy } from "@/src/content";
 import { usePreferences } from "@/src/preferences";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 
+export const HEADER_HEIGHT = 110;
+
 export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () => void }) {
   const insets = useSafeAreaInsets();
   const styles = useStyles();
@@ -17,12 +19,10 @@ export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () =>
   const [languageOpen, setLanguageOpen] = useState(false);
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]} testID="landing-header">
+      <View style={styles.mainRow}>
       <View style={styles.left}>
         <Pressable accessibilityRole="button" accessibilityLabel={t.openMenu} testID="header-menu-button" onPress={onMenu} style={({ pressed }) => [styles.menu, pressed && styles.pressed]}>
           <Feather name="menu" size={23} color={colors.onSurface} />
-        </Pressable>
-        <Pressable testID="header-about-button" accessibilityRole="button" onPress={onAbout} style={({ pressed }) => [styles.about, pressed && styles.pressed]}>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} style={styles.aboutText}>{t.about}</Text>
         </Pressable>
       </View>
       <Wordmark size={24} testID="header-wordmark" />
@@ -33,10 +33,17 @@ export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () =>
           <Feather name="chevron-down" size={12} color={colors.muted} />
         </Pressable>
       </View>
+      </View>
+      <View style={styles.navRow}>
+        <Pressable testID="header-about-button" accessibilityRole="button" accessibilityLabel={t.about} onPress={onAbout} style={({ pressed }) => [styles.about, pressed && styles.pressed]}>
+          <Text testID="header-about-label" style={styles.aboutText}>{t.about}</Text>
+          <Feather name="arrow-up-right" size={14} color={colors.blue} />
+        </Pressable>
+      </View>
       <Modal visible={languageOpen} transparent animationType="fade" onRequestClose={() => setLanguageOpen(false)} statusBarTranslucent>
         <View style={styles.overlay}>
           <Pressable testID="header-language-backdrop" accessibilityRole="button" accessibilityLabel={t.close} onPress={() => setLanguageOpen(false)} style={StyleSheet.absoluteFill} />
-          <View testID="header-language-options" style={[styles.dropdown, { top: insets.top + 64 }]}>
+          <View testID="header-language-options" style={[styles.dropdown, { top: insets.top + HEADER_HEIGHT }]}>
             <Text testID="header-language-label" style={styles.languageLabel}>{t.language}</Text>
             {LANGUAGES.map((option) => <Pressable key={option.key} testID={`header-language-${option.key}`} accessibilityRole="radio" accessibilityState={{ checked: language === option.key }} onPress={() => { setLanguage(option.key); setLanguageOpen(false); }} style={({ pressed }) => [styles.option, pressed && styles.pressed]}>
               <Text style={styles.optionText}>{option.label}</Text>
@@ -50,12 +57,14 @@ export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () =>
 }
 
 const useStyles = makeStyles((c) => ({
-  root: { position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 12, paddingBottom: 12, flexDirection: "row", alignItems: "center", backgroundColor: c.glassStrong, borderBottomWidth: 1, borderBottomColor: c.divider },
+  root: { position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 7, backgroundColor: c.glassStrong, borderBottomWidth: 1, borderBottomColor: c.divider },
+  mainRow: { flexDirection: "row", alignItems: "center", height: 44 },
+  navRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 2 },
   left: { flex: 1, flexDirection: "row", alignItems: "center" },
   right: { flex: 1, alignItems: "flex-end" },
   menu: { width: 44, height: 44, alignItems: "flex-start", justifyContent: "center" },
-  about: { minHeight: 44, minWidth: 44, flexShrink: 1, justifyContent: "center", paddingRight: 2 },
-  aboutText: { fontFamily: fonts.bodyMedium, fontSize: 10, color: c.onSurfaceSecondary },
+  about: { minHeight: 44, minWidth: 96, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingHorizontal: 14, borderRadius: 5, backgroundColor: c.blueTint },
+  aboutText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: c.onSurface },
   languageButton: { minHeight: 44, minWidth: 62, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 5 },
   languageCode: { fontFamily: fonts.bodyMedium, fontSize: 11, color: c.onSurfaceSecondary },
   overlay: { flex: 1 },

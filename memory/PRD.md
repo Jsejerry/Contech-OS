@@ -1,5 +1,15 @@
 # ConTech OS — Landing App PRD
 
+## Latest update — minimal copy and About Us navigation fix
+- User requested a much more minimal, aesthetically pleasing use of existing content and explicitly repeated the top About Us button bug. Preserve all other features.
+- Shortened EN/FR/ES headlines, leads, solution explanations, audience summaries, product sample text and About copy. Removed repeated product/CTA/footer prose. Essential What/Who/How meanings remain.
+- Problems, solutions, audience details and feature explanations are collapsed by default; taps reveal concise details and toggle closed. Switching feature tabs resets explanation. Six architectural modules and all interactive previews remain.
+- Fixed crowded10px About link: now readable13px text in its own44px-high compact nav row, separate from centered logo/menu/language. Shared110px header height updates hero spacing and section-scroll offsets. No theme controls restored.
+- Testing agent iteration7 verified the reported About bug:320x740/390x844 inEN/FR/ES, no truncation/overlap, centered logo, taps before/after scroll, close/backdrop, About→waitlist. All simplified interactions, chapter jumps, product previews, dock and globe passed. Report `/app/test_reports/iteration_7.json`; no UI/integration/design bugs. Backend unchanged.
+- Lint/TypeScript passed. Agent logged non-blocking legacy scroll-signature and transient Metro warnings; app already used object-form scrolling, now also explicitly sets x:0. Metro services healthy and error log empty. No dependency changes or warning suppression.
+- Final real-menu navigation check passed all three chapters below the header with no scrollTo/Metro warnings captured. Screenshot `/tmp/minimal-landing-final.jpg`. This supplementary check follows the agent's required bug verification.
+- P0: None in tested requested flows. Existing physical-device acceptance remains P1.
+
 ## Latest narrow update — centered navigation logo
 - User requested only: centered logo, language option in top navbar, remove theme option; everything else unchanged.
 - Header now uses equal side columns around the centered single-line logo. Hamburger/About remain left; compact EN/FR/ES selector is right, with accessible dismissible native-modal dropdown.
