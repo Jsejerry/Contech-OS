@@ -1,6 +1,6 @@
 import Feather from "@react-native-vector-icons/feather";
 import { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Wordmark } from "@/src/components/logo";
 import { LANGUAGES } from "@/src/components/language-picker";
@@ -8,10 +8,11 @@ import { useCopy } from "@/src/content";
 import { usePreferences } from "@/src/preferences";
 import { fonts, makeStyles, useTheme } from "@/src/theme";
 
-export const HEADER_HEIGHT = 110;
+export const HEADER_HEIGHT = 68;
 
 export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () => void }) {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const styles = useStyles();
   const { colors } = useTheme();
   const t = useCopy();
@@ -24,8 +25,11 @@ export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () =>
         <Pressable accessibilityRole="button" accessibilityLabel={t.openMenu} testID="header-menu-button" onPress={onMenu} style={({ pressed }) => [styles.menu, pressed && styles.pressed]}>
           <Feather name="menu" size={23} color={colors.onSurface} />
         </Pressable>
+        <Pressable testID="header-about-button" accessibilityRole="button" accessibilityLabel={t.about} onPress={onAbout} style={({ pressed }) => [styles.about, pressed && styles.pressed]}>
+          <Text testID="header-about-label" numberOfLines={1} style={styles.aboutText}>{t.about}</Text>
+        </Pressable>
       </View>
-      <Wordmark size={24} testID="header-wordmark" />
+      <Wordmark size={width < 360 ? 20 : 24} testID="header-wordmark" />
       <View style={styles.right}>
         <Pressable testID="header-language-toggle" accessibilityRole="button" accessibilityLabel={t.language} accessibilityState={{ expanded: languageOpen }} onPress={() => setLanguageOpen(true)} style={({ pressed }) => [styles.languageButton, pressed && styles.pressed]}>
           <Feather name="globe" size={15} color={colors.blue} />
@@ -33,12 +37,6 @@ export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () =>
           <Feather name="chevron-down" size={12} color={colors.muted} />
         </Pressable>
       </View>
-      </View>
-      <View style={styles.navRow}>
-        <Pressable testID="header-about-button" accessibilityRole="button" accessibilityLabel={t.about} onPress={onAbout} style={({ pressed }) => [styles.about, pressed && styles.pressed]}>
-          <Text testID="header-about-label" style={styles.aboutText}>{t.about}</Text>
-          <Feather name="arrow-up-right" size={14} color={colors.blue} />
-        </Pressable>
       </View>
       <Modal visible={languageOpen} transparent animationType="fade" onRequestClose={() => setLanguageOpen(false)} statusBarTranslucent>
         <View style={styles.overlay}>
@@ -57,14 +55,13 @@ export function Header({ onMenu, onAbout }: { onMenu: () => void; onAbout: () =>
 }
 
 const useStyles = makeStyles((c) => ({
-  root: { position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 7, backgroundColor: c.glassStrong, borderBottomWidth: 1, borderBottomColor: c.divider },
+  root: { position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 10, paddingBottom: 11, backgroundColor: c.glassStrong, borderBottomWidth: 1, borderBottomColor: c.divider },
   mainRow: { flexDirection: "row", alignItems: "center", height: 44 },
-  navRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 2 },
   left: { flex: 1, flexDirection: "row", alignItems: "center" },
   right: { flex: 1, alignItems: "flex-end" },
   menu: { width: 44, height: 44, alignItems: "flex-start", justifyContent: "center" },
-  about: { minHeight: 44, minWidth: 96, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingHorizontal: 14, borderRadius: 5, backgroundColor: c.blueTint },
-  aboutText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: c.onSurface },
+  about: { minHeight: 44, width: 56, alignItems: "center", justifyContent: "center", borderRadius: 4, backgroundColor: c.blueTint },
+  aboutText: { fontFamily: fonts.bodyMedium, fontSize: 12, color: c.onSurface },
   languageButton: { minHeight: 44, minWidth: 62, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 5 },
   languageCode: { fontFamily: fonts.bodyMedium, fontSize: 11, color: c.onSurfaceSecondary },
   overlay: { flex: 1 },
